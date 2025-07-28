@@ -2,11 +2,11 @@
 
 # Visual Studio
 .vs/
-.suo
-.user
-.cache
-.vsidx
-.dtbcache.v2
+*.suo
+*.user
+*.cache
+*.vsidx
+*.dtbcache.v2
 
 # Build
 bin/
@@ -56,3 +56,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Build
+bin/
+obj/
+
