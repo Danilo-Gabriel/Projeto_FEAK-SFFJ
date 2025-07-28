@@ -1,0 +1,30 @@
+﻿# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/contentModel.xml
+/modules.xml
+/projectSettingsUpdater.xml
+/.idea.FeakApi.iml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.cache
+*.vsidx
+*.dtbcache.v2
+
+# Build
+bin/
+obj/
+
+# Node (para a parte web Angular)
+node_modules/
+dist/
+

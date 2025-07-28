@@ -1,0 +1,6 @@
+@FeakApi_HostAddress = http://localhost:5285
+
+GET {{FeakApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
