@@ -1,0 +1,18 @@
+﻿version: '3.8'
+
+services:
+ postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: dbfeak_sffj
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbPostgres:/var/lib/postgresql/data
+
+volumes:
+ dbPostgres:
