@@ -1,4 +1,5 @@
-﻿using FeakApi.models.services;
+﻿using FeakApi.models.dtos;
+using FeakApi.models.services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FeakApi.Controllers
@@ -15,13 +16,11 @@ namespace FeakApi.Controllers
             _service = service;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
-        {
-            var usuario = await _service.ObterUsuarioComPedidos(id);
-            if (usuario == null) return NotFound();
-            return Ok(usuario);
-        }
 
+        [HttpPost]
+        public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> CadastrarUsuario([FromBody] UsuarioDTO request)
+        {
+            return Ok(await _service.CadastrarUsuario(request));
+        }
     }
 }
