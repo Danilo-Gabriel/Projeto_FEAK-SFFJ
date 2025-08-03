@@ -11,7 +11,7 @@ namespace FeakApi.Controllers
         [HttpGet]
         public string Hello()
         {
-            return "Olá, mundo..";
+            return "Olá, mundo...";
         }
     }
 }
