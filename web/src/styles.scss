@@ -8,8 +8,30 @@
 
 @import './assets/styles/variables';
 
+
+ * {
+    font-family: "Poppins", sans-serif;
+    margin:0;
+    padding: 0;
+    box-sizing: border-box;
+ }
+ 
 body{
     font-family: 'Noto Sans', sans-serif;
     margin:0 !important;
 }
 
+
+
+:root{
+    --body-color: #E4E9F7 !important;
+    --sidebar-color: #fff !important;
+    --primary-color: #FFC727 !important;
+    --primary-color-light: #F6F5FF !important;
+    --toggle-color: #DDD !important;
+    --text-color: #707070 !important;
+
+    --tran-03: all 0.3s ease;
+    --tran-04: all 0.4s ease;
+    --tran-05: all 0.5s ease;
+}

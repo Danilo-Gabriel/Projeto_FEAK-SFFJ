@@ -1,0 +1,95 @@
+<div class="body-sidebar" [class.close]="sidebarClosed">
+<nav class="sidebar">
+    <header>
+        <div class="image-text">
+            <span class="image">
+                <img src="../../../assets/imgs/doctors-animate.svg" alt="">
+            </span>
+
+            <div class="text header-text">
+                <span class="name">FEAK</span>
+                <span class="profession">Web develop</span>
+            </div>
+        </div>
+        <i class='bx bx-chevron-right toggle' (click)="toggleSidebar()"></i>
+    </header>
+
+    <div class="menu-bar">
+        <div class="menu">
+                <li class="search-box">
+                        <i class='bx bx-search icon' ></i>
+                        <input type="search" placeholder="Search...">
+                </li>
+                <ul class="menu-links">
+                     <li class="nav-link">
+                         <a href="/pages">
+                             <i class="bx bx-home-alt icon"></i>
+                             <span class="text nav-text">Dashboard </span>
+                         </a>
+                     </li>
+
+                    <li class="nav-link">
+                         <a href="/pages">
+                             <i class="bx bx-store icon"></i>
+                             <span class="text nav-text"> Produto</span>
+                         </a>
+                     </li>
+
+                    <li class="nav-link">
+                         <a href="/pages">
+                             <i class="bx bx-data icon"></i>
+                             <span class="text nav-text"> Estoque</span>
+                         </a>
+                     </li>
+
+
+                    <li class="nav-link">
+                         <a href="/pages">
+                             <i class="bx bx-credit-card icon"></i>
+                             <span class="text nav-text"> PDV</span>
+                         </a>
+                     </li>
+
+                     <li class="nav-link">
+                         <a href="/pages/usuario">
+                             <i class="bx bx-user icon"></i>
+                             <span class="text nav-text"> Usuário</span>
+                         </a>
+                     </li>
+                     
+             
+                       <li class="nav-link">
+                         <a href="/pages">
+                             <i class="bx bx-file-blank icon"></i>
+                             <span class="text nav-text"> Relátorio</span>
+                         </a>
+                     </li>
+                     
+            </ul>
+        </div>
+
+        <div class="bottom-content">
+                <li class="">
+                         <a >
+                             <i class="bx bx-log-out icon"></i>
+                             <span class="text nav-text"> Logout</span>
+                         </a>
+                </li>
+
+              <!-- <li class="mode">
+                        <div class="moon-sun">
+                            <i class="bx bx-moon icon"></i>
+                            <i class="bx bx-sun icon"></i>
+                        </div>
+                    </li> -->
+        </div>
+    </div>
+</nav>
+
+<section class="home">
+    <div class="text">
+        <router-outlet></router-outlet>
+    </div>
+</section>
+</div>
+

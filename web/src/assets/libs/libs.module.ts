@@ -1,3 +1,4 @@
+import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
 
@@ -5,7 +6,8 @@ import { InputTextModule } from 'primeng/inputtext';
 
 @NgModule({
 exports: [
-  InputTextModule
+  InputTextModule,
+  HttpClientModule,
 ]
 })
 export class LibsModule { }
