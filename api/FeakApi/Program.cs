@@ -15,7 +15,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policyBuilder =>
     {
         policyBuilder
-            .WithOrigins("http://localhost:4200", "https://localhost:7250") // frontend
+            .WithOrigins("http://localhost:4200", "https://localhost:7250/swagger/index.html") // frontend
             .AllowAnyHeader()
             .AllowAnyMethod();
         // .AllowCredentials(); // se precisar enviar cookies, descomente

@@ -19,7 +19,8 @@ namespace FeakApi.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     nome_completo = table.Column<string>(type: "text", nullable: false),
                     nome_login = table.Column<string>(type: "text", nullable: false),
-                    senha = table.Column<string>(type: "text", nullable: false)
+                    senha = table.Column<string>(type: "text", nullable: false),
+                    ativo = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

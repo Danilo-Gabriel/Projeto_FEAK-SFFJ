@@ -29,6 +29,10 @@ namespace FeakApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
                     b.Property<string>("NomeCompleto")
                         .IsRequired()
                         .HasColumnType("text")

@@ -20,6 +20,11 @@ namespace FeakApi.models.repository
                 .FirstOrDefaultAsync(u => u.Id == id);
         }
 
+        public async Task<List<Usuario>> ObterUsuarios()
+        {
+            return await _context.Usuarios.ToListAsync();
+        }
+
         public async Task<Usuario> GetByNomeLoginAsync(string NomeLogin)
         {
             return await _context.Usuarios

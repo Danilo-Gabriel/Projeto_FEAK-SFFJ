@@ -17,16 +17,23 @@ namespace FeakApi.models.services
             _repo = repo;
         }
 
-        public Task<Usuario> ObterUsuarioPorId(int id)
+        public async Task<Usuario> ObterUsuarioPorId(int id)
         {
-            return _repo.GetByIdAsync(id);
+            return await _repo.GetByIdAsync(id);
         }
 
-        public Task<Usuario> ObterUsuarioNomeLogin(string NomeLogin)
+        public async Task<Usuario> ObterUsuarioNomeLogin(string NomeLogin)
         {
-            return _repo.GetByNomeLoginAsync(NomeLogin);
+            return await _repo.GetByNomeLoginAsync(NomeLogin);
         }
 
+        public async Task<List<UsuarioDTO>> ObterUsuarios()
+        {
+            
+            var usuarios = await _repo.ObterUsuarios();
+            return usuarios.Select(x => x.toDTO()).ToList();
+     
+        }
         public async Task<ServiceResponse<UsuarioDTO>> CadastrarUsuario(UsuarioDTO dados)
         {
             ServiceResponse<UsuarioDTO> serviceResponse = new ServiceResponse<UsuarioDTO>();

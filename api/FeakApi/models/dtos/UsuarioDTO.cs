@@ -1,4 +1,5 @@
 ﻿using FeakApi.models.entity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FeakApi.models.dtos
 {
@@ -9,6 +10,7 @@ namespace FeakApi.models.dtos
         public string NomeLogin { get; set; }
 
         public string Senha { get; set; }
+        public bool Ativo{ get; set; }
 
 
 
@@ -19,6 +21,7 @@ namespace FeakApi.models.dtos
                 NomeCompleto = this.NomeCompleto,
                 NomeLogin = this.NomeLogin,
                 Senha = Senha,
+                Ativo = this.Ativo
             };
         }
     }

@@ -22,5 +22,11 @@ namespace FeakApi.Controllers
         {
             return Ok(await _service.CadastrarUsuario(request));
         }
+
+        [HttpGet]
+        public async Task<ActionResult<ServiceResponse<List<UsuarioDTO>>>> ObterUsuarios()
+        {
+            return Ok(await _service.ObterUsuarios());
+        }
     }
 }

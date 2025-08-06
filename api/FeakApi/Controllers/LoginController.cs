@@ -37,6 +37,12 @@ namespace FeakApi.Controllers
             ServiceResponse<UsuarioDTO> response = new ServiceResponse<UsuarioDTO>();
 
             var usuario = await _usuarioService.ObterUsuarioNomeLogin(request.NomeLogin);
+            if (usuario == null)
+            {
+                response.Mensagem = "Usuario não encontrado!";
+                response.Success = false;
+                return BadRequest(response);
+            }
             var result = (_passwordHasher.VerifyHashedPassword(null, usuario.Senha, request.Senha)) == PasswordVerificationResult.Success;
 
             if (!result)

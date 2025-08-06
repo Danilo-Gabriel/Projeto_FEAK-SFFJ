@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FeakApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250803130956_banco_inicial")]
+    [Migration("20250806004517_banco_inicial")]
     partial class banco_inicial
     {
         /// <inheritdoc />
@@ -31,6 +31,10 @@ namespace FeakApi.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
 
                     b.Property<string>("NomeCompleto")
                         .IsRequired()

@@ -18,6 +18,9 @@ namespace FeakApi.models.entity
         [Column("senha")]
         public string Senha { get; set; }
 
+        [Column("ativo")]
+        public bool Ativo { get; set; }
+
 
         public UsuarioDTO toDTO()
         {
@@ -25,7 +28,8 @@ namespace FeakApi.models.entity
             {
                 NomeCompleto = this.NomeCompleto,
                 NomeLogin = this.NomeLogin,
-                Senha = this.Senha
+                Senha = this.Senha,
+                Ativo = this.Ativo
             };
         }
     }
