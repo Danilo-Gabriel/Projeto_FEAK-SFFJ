@@ -6,8 +6,8 @@ import { HttpClient } from '@angular/common/http';
 import { UsuarioDTO } from '../../models/dto/user-dto';
 import { catchError, map, throwError } from 'rxjs';
 import { environment } from '../../../environment/environment';
-import { MessageService } from 'primeng/api';
 import { AppMessageService } from '../../services/app-message.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-usuario',
@@ -20,16 +20,22 @@ export class UsuarioComponent implements OnInit {
     constructor(
           private router : Router,
           private http : HttpClient,
-          private message: AppMessageService
+          private message: AppMessageService,
+          private formBuilder : FormBuilder
     ){}
 
 
     @ViewChild('dt1') dt1! : Table
     public listaUsuarios!: UsuarioDTO[];
+    public visivel: boolean = false;
+    labelModel : string = ''
     selectedCustomers!: Customer;
+
+    public formUsuario! : FormGroup
 
   ngOnInit(): void {
       this.obterUsuarios();
+      this.formulario();
   }
 
   getSeverity(status: string): 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast' | undefined {
@@ -72,6 +78,45 @@ this.http.get<UsuarioDTO[]>(`${environment.endPoint}/usuario`)
 
     showInfo() {
         this.message.showInfo("");
+    }
+
+
+    registrarUsuario(){
+        this.labelModel = "Cadastrar";
+        this.formUsuario.reset();
+        this.visivel = !this.visivel;
+      
+    }
+
+    editarUsuario(user : UsuarioDTO) {
+        this.labelModel = "Editar";
+        this.visivel = !this.visivel;
+        if(user != null){
+          this.formUsuario.patchValue(user);
+        }
+        console.log(user, "DADOS USUÃRIO");
+    }
+
+    formulario(){
+        this.formUsuario = this.formBuilder.group({
+          nomeCompleto: ['', Validators.required],
+          nomeLogin: ['', Validators.required],
+          senha: ['', Validators.required]
+        })
+    }
+
+
+    onSubmit(){
+      if(this.formUsuario.valid){
+        console.log("VALIDO")
+      }
+      else{
+      console.log("NAO VALIDO")
+      }
+    }
+
+    fechar(){
+      this.visivel = !this.visivel;
     }
 }
 

@@ -8,6 +8,8 @@ import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { PasswordModule } from 'primeng/password';
 
 
 @NgModule({
@@ -21,7 +23,8 @@ exports: [
   ToolbarModule,
   ToastModule,
   ButtonModule,
-
+  DialogModule,
+  PasswordModule
   
 ]
 })
