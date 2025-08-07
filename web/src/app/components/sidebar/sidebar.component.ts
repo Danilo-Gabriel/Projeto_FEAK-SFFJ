@@ -1,32 +1,38 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AppMessageService } from '../../services/app-message.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent implements OnInit, AfterViewInit {
-
-     @ViewChild('headerRef') sidebar!: ElementRef<HTMLElement>;
+export class SidebarComponent implements OnInit {
 
 
-       sidebarClosed = false;
+  constructor(
+    private router : Router,
+    private message : AppMessageService
+  ){
 
-    ngAfterViewInit(): void {
-     
-      const body = this.sidebar.nativeElement.querySelector(".body-sidebar"),
-            sidebar = body?.querySelector(".sidebar"),
-            toggle = body?.querySelector(".toggle"),
-            searchBtn = body?.querySelector(".search-box");
-      }
+  }
+
+    sidebarClosed = false;
+
 
     ngOnInit(): void {
       
     }
 
-      toggleSidebar(): void {
-    this.sidebarClosed = !this.sidebarClosed;
-  }
+    toggleSidebar(): void {
+       this.sidebarClosed = !this.sidebarClosed;
+    }
 
- 
+
+    logout(){
+     this.router.navigate(['/login']);
+    }
+
+    
 }

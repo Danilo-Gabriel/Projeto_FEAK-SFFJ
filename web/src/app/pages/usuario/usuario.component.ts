@@ -1,6 +1,13 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Customer } from '../../models/dto/customer';
 import { Table } from 'primeng/table';
+import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { UsuarioDTO } from '../../models/dto/user-dto';
+import { catchError, map, throwError } from 'rxjs';
+import { environment } from '../../../environment/environment';
+import { MessageService } from 'primeng/api';
+import { AppMessageService } from '../../services/app-message.service';
 
 @Component({
   selector: 'app-usuario',
@@ -9,47 +16,20 @@ import { Table } from 'primeng/table';
 })
 export class UsuarioComponent implements OnInit {
 
+
+    constructor(
+          private router : Router,
+          private http : HttpClient,
+          private message: AppMessageService
+    ){}
+
+
     @ViewChild('dt1') dt1! : Table
-    customers!: Customer[];
+    public listaUsuarios!: UsuarioDTO[];
     selectedCustomers!: Customer;
 
   ngOnInit(): void {
-    this.customers = [{
-                id: 1000,
-                name: 'James Butt',
-                country: {
-                    name: 'Algeria',
-                    code: 'dz'
-                },
-                company: 'Benton, John B Jr',
-                date: '2015-09-13',
-                status: 'unqualified',
-                verified: true,
-                activity: 17,
-                representative: {
-                    name: 'Ioni Bowcher',
-                    image: 'ionibowcher.png'
-                },
-                balance: 70663
-            },
-            {
-                id: 1001,
-                name: 'Josephine Darakjy',
-                country: {
-                    name: 'Egypt',
-                    code: 'eg'
-                },
-                company: 'Chanay, Jeffrey A Esq',
-                date: '2019-02-09',
-                status: 'proposal',
-                verified: true,
-                activity: 0,
-                representative: {
-                    name: 'Amy Elsner',
-                    image: 'amyelsner.png'
-                },
-                balance: 82429
-            },];
+      this.obterUsuarios();
   }
 
   getSeverity(status: string): 'success' | 'secondary' | 'info' | 'warning' | 'danger' | 'contrast' | undefined {
@@ -75,4 +55,23 @@ onFilterGlobal(event: Event) {
   this.dt1.filterGlobal(value, 'contains');
 }
 
+
+obterUsuarios(){
+this.http.get<UsuarioDTO[]>(`${environment.endPoint}/usuario`)
+  .pipe(
+    // map(users => users.filter(user => user.ativo)),
+    catchError(error => {
+      console.error('Erro na API', error);
+      return throwError(() => new Error('Erro ao buscar usuários.'));
+    })
+  )
+  .subscribe(data => {
+    this.listaUsuarios = data;
+  });
 }
+
+    showInfo() {
+        this.message.showInfo("");
+    }
+}
+

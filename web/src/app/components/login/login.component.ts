@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { LoginDTO } from '../../models/dto/login-dto';
 import { ServiceResponse } from '../../models/dto/service-response';
 import { catchError, Observable, throwError } from 'rxjs';
+import { AppMessageService } from '../../services/app-message.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,7 @@ export class LoginComponent implements OnInit{
   constructor(public formBuilder: FormBuilder,
     private router : Router,
     private http : HttpClient,
+    private message : AppMessageService
   ){}
 
 
@@ -52,11 +54,12 @@ export class LoginComponent implements OnInit{
   ).subscribe({
         next: (res) => {
           console.log('Login OK:', res);
+          this.message.showSuccess("")
           this.router.navigate(['pages'])
         },
         error: (err) => {
           console.error('Erro ao logar:', err);
-          alert("DEU RUIM, criar pop",)
+          this.message.showError("Usuário ou senha incorretas")
         }
       });
 }

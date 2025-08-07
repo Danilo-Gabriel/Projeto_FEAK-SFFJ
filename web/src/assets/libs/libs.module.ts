@@ -5,7 +5,9 @@ import { TableModule } from 'primeng/table';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
-
+import { ToolbarModule } from 'primeng/toolbar';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 
 
 @NgModule({
@@ -15,7 +17,11 @@ exports: [
   TableModule,
   TagModule,
   IconFieldModule,
-  InputIconModule
+  InputIconModule,
+  ToolbarModule,
+  ToastModule,
+  ButtonModule,
+
   
 ]
 })

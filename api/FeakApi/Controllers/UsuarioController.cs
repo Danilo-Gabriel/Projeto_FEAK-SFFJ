@@ -6,7 +6,7 @@ namespace FeakApi.Controllers
 {
 
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/usuario")]
     public class UsuarioController : ControllerBase
     {
         private readonly UsuarioService _service;

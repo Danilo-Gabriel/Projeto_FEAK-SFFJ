@@ -1,17 +1,22 @@
+
+
+<p-toast/>
 <div class="card" style="padding: 60px 24px 24px 24px;">
     <p-table
         #dt1
-        [value]="customers"
-        [globalFilterFields]="['name', 'country.name', 'representative.name', 'status']"
+        [value]="listaUsuarios"
+        [globalFilterFields]="['nomeCompleto', 'nomeLogin', 'ativo']"
         selectionMode="single"
         [(selection)]="selectedCustomers"
-        dataKey="id"
         [tableStyle]="{ 'min-width': '50rem' }"
-        [rows]="1"
-        [paginator]="true"
-        stateStorage="session"
-        stateKey="statedemo-session">
+        [rows]="10"
+         [showCurrentPageReport]="true"
+        [currentPageReportTemplate]="'Exibindo {first} a {last} de {totalRecords} registros'"
+        [paginator]="true">
         <ng-template pTemplate="caption">
+            <div style="display: flex; justify-content: space-between;">
+
+       
             <p-iconField iconPosition="left">
                 <p-inputIcon>
                     <i class="pi pi-search"></i>
@@ -20,80 +25,65 @@
                     pInputText 
                     type="text" 
                     (input)="onFilterGlobal($event)"
-                    placeholder="Global Search" />
+                    placeholder="Search" />
             </p-iconField>
+
+            <div class="pr-3">
+               <p-button
+                severity="success" 
+                icon="pi pi-plus" 
+              
+                />
+            </div>
+
+             </div>
         </ng-template>
         <ng-template pTemplate="header">
             <tr>
-                <th pSortableColumn="name" style="width:25%">
-                    Name <p-sortIcon field="name" />
+                <th pSortableColumn="nomeCompleto" style="width:%">
+                    Nome Completo <p-sortIcon field="nomeCompleto" />
                 </th>
-                <th pSortableColumn="country.name" style="width:25%">
-                    Country <p-sortIcon field="country.name" />
+                <th pSortableColumn="nomeLogin" style="width:25%">
+                    Nome Login <p-sortIcon field="nomeLogin" />
                 </th>
-                <th pSortableColumn="representative.name" style="width:25%">
-                    Representative <p-sortIcon field="representative.name" />
+                <th pSortableColumn="ativo" style="width:25%">
+                    Status <p-sortIcon field="ativo" />
                 </th>
-                <th pSortableColumn="status" style="width:25%">
-                    Status <p-sortIcon field="status" />
-                </th>
+                <th style="width: 25%;"></th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-customer>
-            <tr [pSelectableRow]="customer">
+        <ng-template pTemplate="body" let-user>
+            <tr [pSelectableRow]="user">
                 <td>
-                    <span class="p-column-title">Name</span>
-                    {{ customer.name }}
+                    <span class="p-column-title">Nome Completo</span>
+                    {{ user.nomeCompleto }}
                 </td>
                 <td>
-                    <span class="p-column-title">Country</span>
-                    <img 
-                        src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png" 
-                        [class]="'flag flag-' + customer.country.code" 
-                        style="width: 20px" />
-                    <span class="ml-1 vertical-align-middle">{{ customer.country.name }}</span>
-                </td>
-                <td>
-                    <span class="p-column-title">Representative</span>
-                    <img 
-                        [alt]="customer.representative.name" 
-                        src="https://primefaces.org/cdn/primeng/images/demo/avatar/{{ customer.representative.image }}" 
-                        width="32" 
-                        style="vertical-align: middle" />
-                    <span class="ml-1 vertical-align-middle">{{ customer.representative.name }}</span>
+                    <span class="p-column-title">Nome Login</span>
+                    {{ user.nomeLogin }}
                 </td>
                 <td>
                     <span class="p-column-title">Status</span>
-                    <p-tag [value]="customer.status" [severity]="getSeverity(customer.status)" />
+                      {{ user.ativo ? 'ativo' : 'inativo'  }}
                 </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-customer>
-            <tr [pSelectableRow]="customer">
-                <td>
-                    <span class="p-column-title">Name</span>
-                    {{ customer.name }}
-                </td>
-                <td>
-                    <span class="p-column-title">Country</span>
-                    <img 
-                        src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png" 
-                        [class]="'flag flag-' + customer.country.code" 
-                        style="width: 20px" />
-                    <span class="ml-1 vertical-align-middle">{{ customer.country.name }}</span>
-                </td>
-                <td>
-                    <span class="p-column-title">Representative</span>
-                    <img 
-                        [alt]="customer.representative.name" 
-                        src="https://primefaces.org/cdn/primeng/images/demo/avatar/{{ customer.representative.image }}" 
-                        width="32" 
-                        style="vertical-align: middle" />
-                    <span class="ml-1 vertical-align-middle">{{ customer.representative.name }}</span>
-                </td>
-                <td>
-                    <span class="p-column-title">Status</span>
-                    <p-tag [value]="customer.status" [severity]="getSeverity(customer.status)" />
+                <td style="display: flex;
+                            align-items: flex-end;
+                            gap: 15px;
+                            justify-content: center;">
+                    <p-button 
+                        icon="pi pi-pencil" 
+                        class="mr-2" 
+                        (onClick)="showInfo()" 
+                        [rounded]="true" 
+                        [outlined]="true" 
+                        severity="success" 
+                        />
+                    <p-button 
+                        icon="pi pi-trash" 
+                        severity="danger" 
+                        [rounded]="true" 
+                        [outlined]="true" 
+                        />
                 </td>
             </tr>
         </ng-template>
@@ -104,3 +94,4 @@
         </ng-template>
     </p-table>
 </div>
+
