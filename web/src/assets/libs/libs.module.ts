@@ -10,6 +10,9 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { PasswordModule } from 'primeng/password';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { PaginatorModule } from 'primeng/paginator';
 
 
 @NgModule({
@@ -24,7 +27,10 @@ exports: [
   ToastModule,
   ButtonModule,
   DialogModule,
-  PasswordModule
+  PasswordModule,
+  ConfirmDialogModule,
+  DynamicDialogModule,
+  PaginatorModule
   
 ]
 })

@@ -23,10 +23,22 @@ namespace FeakApi.Controllers
             return Ok(await _service.CadastrarUsuario(request));
         }
 
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> AtualizarUsuario([FromBody] UsuarioDTO request)
+        {
+            return Ok(await _service.AtualizarUsuario(request));
+        }
+
         [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<UsuarioDTO>>>> ObterUsuarios()
         {
             return Ok(await _service.ObterUsuarios());
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> InativarUsuario(int id)
+        {
+            return Ok(await _service.InativarUsuarioPorId(id));
         }
     }
 }

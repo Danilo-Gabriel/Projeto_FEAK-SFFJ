@@ -39,5 +39,33 @@ namespace FeakApi.models.repository
 
             return dados;
         }
+
+        public async Task<Usuario> AtualizarUsuario(Usuario dados)
+        {
+            _context.Usuarios.Update(dados);
+            await _context.SaveChangesAsync();
+
+            return dados;
+        }
+
+
+        public async Task<Usuario> inativarUsuario(int id)
+        {
+
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if (usuario == null)
+            {
+                throw new Exception("Usuário não encontrado");
+            }
+
+            usuario.Ativo = false;
+
+            _context.Usuarios.Update(usuario);
+            await _context.SaveChangesAsync();
+
+            return usuario;
+        }
+
+
     }
 }

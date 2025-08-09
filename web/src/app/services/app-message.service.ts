@@ -27,5 +27,12 @@ showError(mgs : string) {
   this.messageService.add({ severity: 'error', summary: 'Error', detail: mgs });
 }
 
+accept(){
+  this.messageService.add({severity: 'info', summary: 'Confirmed', detail: 'Você aceitou', life: 3000})
+}
+
+reject(){
+ this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'Você rejeitou', life: 3000 });
+}
   
 }

@@ -43,7 +43,7 @@ namespace FeakApi.Controllers
                 response.Success = false;
                 return BadRequest(response);
             }
-            var result = (_passwordHasher.VerifyHashedPassword(null, usuario.Senha, request.Senha)) == PasswordVerificationResult.Success;
+            var result = (_passwordHasher.VerifyHashedPassword(null, usuario.Dados.Senha, request.Senha)) == PasswordVerificationResult.Success;
 
             if (!result)
             {
@@ -52,7 +52,7 @@ namespace FeakApi.Controllers
                 return BadRequest(response);
             }
 
-            response.Dados = usuario.toDTO();
+            response.Dados = usuario.Dados.toDTO();
 
             return Ok(response);
         }

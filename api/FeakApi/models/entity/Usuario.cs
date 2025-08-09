@@ -7,7 +7,7 @@ namespace FeakApi.models.entity
     public class Usuario
     {
         [Key]
-        public int Id { get; set; }
+        public int? Id { get; set; }
 
         [Column("nome_completo")]
         public string NomeCompleto { get; set; }
@@ -26,10 +26,11 @@ namespace FeakApi.models.entity
         {
             return new UsuarioDTO
             {
+                Id = this.Id,
                 NomeCompleto = this.NomeCompleto,
                 NomeLogin = this.NomeLogin,
                 Senha = this.Senha,
-                Ativo = this.Ativo
+                Ativo = this.Id == 0 ? true : this.Ativo
             };
         }
     }

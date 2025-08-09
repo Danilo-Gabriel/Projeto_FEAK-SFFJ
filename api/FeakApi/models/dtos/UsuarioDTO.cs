@@ -5,6 +5,7 @@ namespace FeakApi.models.dtos
 {
     public class UsuarioDTO
     {
+        public int? Id { get; set; }
         public string NomeCompleto { get; set; }
 
         public string NomeLogin { get; set; }
@@ -21,7 +22,7 @@ namespace FeakApi.models.dtos
                 NomeCompleto = this.NomeCompleto,
                 NomeLogin = this.NomeLogin,
                 Senha = Senha,
-                Ativo = this.Ativo
+                Ativo = true 
             };
         }
     }

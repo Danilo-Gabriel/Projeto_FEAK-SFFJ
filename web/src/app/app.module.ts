@@ -9,7 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { UsuarioComponent } from './pages/usuario/usuario.component';
 import { PagesComponent } from './pages/pages.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 
@@ -19,7 +19,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     LoginComponent,
     UsuarioComponent,
     PagesComponent,
-    SidebarComponent
+    SidebarComponent,
   ],
   imports: [
     BrowserModule,
@@ -28,7 +28,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserAnimationsModule,
     LibsModule
   ],
-  providers: [ MessageService ],
+  providers: [ MessageService, ConfirmationService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

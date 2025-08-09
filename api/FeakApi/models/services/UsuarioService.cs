@@ -17,22 +17,117 @@ namespace FeakApi.models.services
             _repo = repo;
         }
 
-        public async Task<Usuario> ObterUsuarioPorId(int id)
+
+        public async Task<ServiceResponse<UsuarioDTO>> AtualizarUsuario(UsuarioDTO dados)
         {
-            return await _repo.GetByIdAsync(id);
+            var serviceResponse = new ServiceResponse<UsuarioDTO>();
+
+            try
+            {
+                var usuario = await _repo.GetByIdAsync((int)dados.Id);
+
+                if (usuario == null)
+                {
+                    serviceResponse.Mensagem = "Usuário não encontrado.";
+                    serviceResponse.Success = false;
+                    return serviceResponse;
+                }
+
+                usuario.NomeCompleto = dados.NomeCompleto;
+                usuario.NomeLogin = dados.NomeLogin;
+                //usuario.Ativo = dados.Ativo;
+
+                serviceResponse.Dados = (await _repo.AtualizarUsuario(usuario)).toDTO();
+                serviceResponse.Success = true;
+                serviceResponse.Mensagem = "Usuário atualizado com sucesso.";
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Mensagem = $"Erro ao atualizar usuário: {ex.Message}";
+                serviceResponse.Success = false;
+            }
+
+            return serviceResponse;
         }
 
-        public async Task<Usuario> ObterUsuarioNomeLogin(string NomeLogin)
+
+        public async Task<ServiceResponse<Usuario>> ObterUsuarioPorId(int id)
         {
-            return await _repo.GetByNomeLoginAsync(NomeLogin);
+            ServiceResponse<Usuario> serviceResponse = new ServiceResponse<Usuario>();
+
+            try
+            {
+                serviceResponse.Dados = await _repo.GetByIdAsync(id);
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Mensagem = ex.Message;
+                serviceResponse.Success = false;
+            }
+
+            return serviceResponse;
+   
         }
 
-        public async Task<List<UsuarioDTO>> ObterUsuarios()
+        public async Task<ServiceResponse<Usuario>> ObterUsuarioNomeLogin(string NomeLogin)
         {
-            
-            var usuarios = await _repo.ObterUsuarios();
-            return usuarios.Select(x => x.toDTO()).ToList();
+            ServiceResponse<Usuario> serviceResponse = new ServiceResponse<Usuario>();
+
+            try
+            {
+                serviceResponse.Dados = await _repo.GetByNomeLoginAsync(NomeLogin);
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Mensagem = ex.Message;
+                serviceResponse.Success = false;
+            }
+
+            return serviceResponse;
+  
+        }
+
+        public async Task<ServiceResponse<List<UsuarioDTO>>> ObterUsuarios()
+        {
+            ServiceResponse<List<UsuarioDTO>> serviceResponse = new ServiceResponse<List<UsuarioDTO>>();
+
+            try
+            {
+                var usuarios = await _repo.ObterUsuarios();
+                serviceResponse.Dados = usuarios.Where(x => x.Ativo == true).Select(x => x.toDTO()).OrderBy(x => x.NomeCompleto).ToList();
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Mensagem = ex.Message;
+                serviceResponse.Success = false;
+            }
+
+            return serviceResponse;
+        }
+      
      
+    
+
+        public async Task<ServiceResponse<UsuarioDTO>> InativarUsuarioPorId(int id)
+        {
+            ServiceResponse<UsuarioDTO> serviceResponse = new ServiceResponse<UsuarioDTO>();
+
+            try
+            {
+                serviceResponse.Dados = (await _repo.inativarUsuario(id)).toDTO();
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Mensagem = ex.Message;
+                serviceResponse.Success = false;
+            }
+
+            return serviceResponse;
+
         }
         public async Task<ServiceResponse<UsuarioDTO>> CadastrarUsuario(UsuarioDTO dados)
         {
