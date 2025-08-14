@@ -9,6 +9,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { UsuarioComponent } from './pages/usuario/usuario.component';
 import { PagesComponent } from './pages/pages.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { EstoqueComponent } from './pages/estoque/estoque.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     LoginComponent,
     UsuarioComponent,
     PagesComponent,
-    SidebarComponent
+    SidebarComponent,
+    EstoqueComponent,
   ],
   imports: [
     BrowserModule,
