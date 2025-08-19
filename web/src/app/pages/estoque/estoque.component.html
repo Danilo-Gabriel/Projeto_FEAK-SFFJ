@@ -1,3 +1,52 @@
-<h1>
-    MATEUS MEXEU
-</h1>
+<div class="estoque-container">
+  <h2>Gestão de Estoque</h2>
+
+  <div class="form-container">
+    <div *ngIf="!isEditing; else editForm">
+      <h3>Adicionar Novo Produto</h3>
+      <input type="text" [(ngModel)]="newProduct.name" placeholder="Nome do Produto" required>
+      <input type="number" [(ngModel)]="newProduct.quantity" placeholder="Quantidade" required>
+      <input type="number" [(ngModel)]="newProduct.price" placeholder="Preço" required>
+      <button (click)="addProduct()">Adicionar</button>
+    </div>
+
+    <ng-template #editForm>
+      <h3>Editar Produto</h3>
+      <input type="text" [(ngModel)]="editingProduct!.name" placeholder="Nome do Produto" required>
+      <input type="number" [(ngModel)]="editingProduct!.quantity" placeholder="Quantidade" required>
+      <input type="number" [(ngModel)]="editingProduct!.price" placeholder="Preço" required>
+      <button (click)="saveEdit()">Salvar</button>
+      <button (click)="cancelEdit()">Cancelar</button>
+    </ng-template>
+  </div>
+
+  <div class="table-container">
+    <h3>Produtos em Estoque</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Quantidade</th>
+          <th>Preço</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products">
+          <td>{{ product.id }}</td>
+          <td>{{ product.name }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>{{ product.price | currency:'BRL' }}</td>
+          <td>
+            <button class="edit-btn" (click)="editProduct(product)">Editar</button>
+            <button class="delete-btn" (click)="deleteProduct(product.id)">Excluir</button>
+          </td>
+        </tr>
+        <tr *ngIf="products.length === 0">
+          <td colspan="5">Nenhum produto em estoque.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -10,6 +10,7 @@ import { UsuarioComponent } from './pages/usuario/usuario.component';
 import { PagesComponent } from './pages/pages.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { EstoqueComponent } from './pages/estoque/estoque.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { EstoqueComponent } from './pages/estoque/estoque.component';
     BrowserModule,
     ReactiveFormsModule,
     AppRoutingModule,
-    LibsModule
+    LibsModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
