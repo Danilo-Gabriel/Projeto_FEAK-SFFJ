@@ -11,6 +11,7 @@ import { PagesComponent } from './pages/pages.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ProdutoComponent } from './pages/produto/produto.component';
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     UsuarioComponent,
     PagesComponent,
     SidebarComponent,
+    ProdutoComponent
   ],
   imports: [
     BrowserModule,

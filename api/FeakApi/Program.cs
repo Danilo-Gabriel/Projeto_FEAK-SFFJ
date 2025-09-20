@@ -1,4 +1,5 @@
-// Cria e configura o objeto `WebApplicationBuilder`, que é usado para configurar os serviços e o pipeline de solicitação HTTP.
+// Cria e configura o objeto `WebApplicationBuilder`, que ï¿½ usado para configurar os serviï¿½os e o pipeline de solicitaï¿½ï¿½o HTTP.
+// using FeakApi.Domain.Handlers;
 using FeakApi.models.repository;
 using FeakApi.models.repository.interfaces;
 using FeakApi.models.services;
@@ -31,14 +32,21 @@ builder.Services.AddScoped<IDbConnection>(sp =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Injeta o repositório genérico e os específicos
+// Injeta o repositï¿½rio genï¿½rico e os especï¿½ficos
 //builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 //builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 builder.Services.AddScoped<UsuarioRepository>();
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<ProdutoRepository>();
+builder.Services.AddScoped<ProdutoService>();
 
-// Configura os serviços necessários para a aplicação. 
+// criar um serviÃ§o 
+
+// builder.Services.AddTransient<ICreateCustomerHandler, CreateCustomerHandler>();
+
+
+// Configura os serviï¿½os necessï¿½rios para a aplicaï¿½ï¿½o. 
 // `AddControllers` adiciona suporte para controllers MVC, o que permite criar endpoints de API e renderizar views.
 builder.Services.AddControllers();
 
@@ -46,7 +54,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Constrói o objeto `WebApplication` com base nas configurações fornecidas e no contêiner de serviços configurado.
+// Constrï¿½i o objeto `WebApplication` com base nas configuraï¿½ï¿½es fornecidas e no contï¿½iner de serviï¿½os configurado.
 var app = builder.Build();
 
 app.UseCors("AllowAll");
@@ -57,24 +65,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Aplica a política CORS no pipeline
+// Aplica a polï¿½tica CORS no pipeline
 app.UseCors("AllowFrontend");
 
 //using var conn = new NpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"));
 //try
 //{
 //    conn.Open();
-//    Console.WriteLine("Conexão com banco aberta com sucesso.");
+//    Console.WriteLine("Conexï¿½o com banco aberta com sucesso.");
 //}
 //catch (Exception ex)
 //{
-//    Console.WriteLine("Erro ao abrir conexão: " + ex.Message);
+//    Console.WriteLine("Erro ao abrir conexï¿½o: " + ex.Message);
 //}
 
 
-// Mapeia os controllers para os endpoints disponíveis na aplicação.
-// Isso faz com que os controllers sejam acessíveis através das rotas definidas nas suas classes de controller.
+// Mapeia os controllers para os endpoints disponï¿½veis na aplicaï¿½ï¿½o.
+// Isso faz com que os controllers sejam acessï¿½veis atravï¿½s das rotas definidas nas suas classes de controller.
 app.MapControllers();
 
-// Inicia a aplicação e começa a escutar as solicitações HTTP.
+// Inicia a aplicaï¿½ï¿½o e comeï¿½a a escutar as solicitaï¿½ï¿½es HTTP.
 app.Run();

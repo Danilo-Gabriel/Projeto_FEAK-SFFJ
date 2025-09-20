@@ -2,12 +2,14 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { PagesComponent } from '../pages/pages.component';
 import { UsuarioComponent } from '../pages/usuario/usuario.component';
+import { ProdutoComponent } from '../pages/produto/produto.component';
 
 const routes: Routes = [
     {path: '', component: PagesComponent,
 
     children: [
     { path: 'usuario', component: UsuarioComponent},
+    { path: 'produto', component: ProdutoComponent},
 
     ]
   }
