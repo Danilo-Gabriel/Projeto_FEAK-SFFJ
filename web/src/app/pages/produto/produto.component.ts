@@ -1,18 +1,18 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Table } from 'primeng/table';
-import { UsuarioDTO } from '../../models/dto/user-dto';
-import { AppMessageService } from '../../services/app-message.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ConfirmationService } from 'primeng/api';
 import { HttpServiceService } from '../../services/http-service.service';
+import { AppMessageService } from '../../services/app-message.service';
+import { ConfirmationService } from 'primeng/api';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Table } from 'primeng/table';
+import { ProdutoDTO } from '../../models/dto/produto-dto';
 import { ServiceResponse } from '../../models/dto/service-response';
 
 @Component({
-  selector: 'app-usuario',
-  templateUrl: './usuario.component.html',
-  styleUrl: './usuario.component.scss'
+  selector: 'app-produto',
+  templateUrl: './produto.component.html',
+  styleUrl: './produto.component.scss'
 })
-export class UsuarioComponent implements OnInit {
+export class ProdutoComponent implements OnInit {
 
 
   constructor(
@@ -26,8 +26,8 @@ export class UsuarioComponent implements OnInit {
   /*  ATRIBUTOS */
 
   @ViewChild('dt1') dt1!: Table;
-  public formUsuario!: FormGroup
-  public listaUsuarios!: UsuarioDTO[];
+  public formProduto!: FormGroup
+  public listaProdutos!: ProdutoDTO[];
   public visivel: boolean = false;
   public labelModel: string = ''
 
@@ -52,24 +52,25 @@ export class UsuarioComponent implements OnInit {
 
   
   formulario() {
-    this.formUsuario = this.formBuilder.group({
+    this.formProduto = this.formBuilder.group({
       id: [0],
-      nomeCompleto: ['', Validators.required],
-      nomeLogin: ['', Validators.required],
-      senha: ['', Validators.required]
+      descricao: ['', Validators.required],
+      precoCusto: [0, Validators.required],
+      precoVenda: [0, Validators.required],
+      estoqueAtual: ['', Validators.required]
     })
   }
 
 
   onSubmit() {
-    console.log("TESTE", this.formUsuario)
-    if (this.formUsuario.valid) {
+    console.log("TESTE", this.formProduto)
+    if (this.formProduto.valid) {
     
-      if(this.formUsuario.get('id')?.value == 0 || this.formUsuario.get('id')?.value == null){
-           this.criarUsuario(this.formUsuario.value);
+      if(this.formProduto.get('id')?.value == 0 || this.formProduto.get('id')?.value == null){
+           this.criarUsuario(this.formProduto.value);
       }
       else{
-        this.atualizarUsuario(this.formUsuario.value);
+        this.atualizarUsuario(this.formProduto.value);
       }
     }
    
@@ -77,23 +78,23 @@ export class UsuarioComponent implements OnInit {
 
 
 
-  acaoUsuario(user?: UsuarioDTO) {
-    if(user?.id != null && user != undefined){
+  acaoProduto(product?: ProdutoDTO) {
+    if(product?.id != null && product != undefined){
       this.labelModel = "Editar";
-      this.formUsuario.patchValue(user);
+      this.formProduto.patchValue(product);
     }
     else{
       this.labelModel = "Cadastrar";
-      this.formUsuario.reset();
+      this.formProduto.reset();
     }
 
      this.visivel = true;
   }
 
 
-  inforUsuario(user: UsuarioDTO) {
+  infoProduto(produtc: ProdutoDTO) {
     this.confirmationService.confirm({
-      message: `Deseja seguir com exclusão do usuário ${user.nomeLogin}?`,
+      message: `Deseja seguir com exclusão do produto ${produtc.descricao}?`,
       header: 'Confirmação',
       icon: 'pi pi-info-circle',
       acceptButtonStyleClass: "p-button-danger p-button-text",
@@ -104,7 +105,7 @@ export class UsuarioComponent implements OnInit {
       rejectLabel: "Não",
       accept: () => {
         // NO FUTUTO ALTERAR PARA UM CODE QUE SERIA O ID CODIFICADO..
-        this.inativarUsuario(user.id);
+        this.inativarUsuario(produtc.id);
       },
       reject: () => {
         console.log('Usuário cancelou');
@@ -121,8 +122,8 @@ export class UsuarioComponent implements OnInit {
 
   //  CRUD : TRANSFERIR PARA UM SERVICE DEPOIS
 
-  criarUsuario(novoUsuario: UsuarioDTO): void {
-    this.apiService.post<ServiceResponse<UsuarioDTO>>('usuario', novoUsuario)
+  criarUsuario(novoUsuario: ProdutoDTO): void {
+    this.apiService.post<ServiceResponse<ProdutoDTO>>('usuario', novoUsuario)
       .subscribe({
         next: (dados) => {
           console.log(dados, "DADOS")
@@ -145,10 +146,10 @@ export class UsuarioComponent implements OnInit {
 
   
   obterUsuarios() {
-    this.apiService.get<UsuarioDTO[]>('usuario')
+    this.apiService.get<ProdutoDTO[]>('usuario')
       .subscribe({
         next: (data) => {
-          this.listaUsuarios = data.dados;
+          this.listaProdutos = data.dados;
         },
         error: () => {
           this.message.showError("Erro ao buscar usuários");
@@ -157,8 +158,8 @@ export class UsuarioComponent implements OnInit {
   }
 
 
-  atualizarUsuario(usuario: UsuarioDTO): void {
-    this.apiService.put<UsuarioDTO>(`usuario`, usuario)
+  atualizarUsuario(usuario: ProdutoDTO): void {
+    this.apiService.put<ProdutoDTO>(`usuario`, usuario)
       .subscribe({
         next: (dad) => {
           this.message.showSuccess("Usuário atualizado");
@@ -172,7 +173,7 @@ export class UsuarioComponent implements OnInit {
   }
 
   inativarUsuario(id: number): void {
-    this.apiService.delete<ServiceResponse<UsuarioDTO>>(`usuario/${id}`)
+    this.apiService.delete<ServiceResponse<ProdutoDTO>>(`usuario/${id}`)
       .subscribe({
       next: (dados) => {
           if(dados.success == false){
