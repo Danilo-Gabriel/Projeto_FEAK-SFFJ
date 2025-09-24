@@ -11,10 +11,6 @@ public class UsuarioDTO
 
     public string Senha { get; set; }
     
-    public DateTime DhInclusao { get; set; }
-    
-    public DateTime? DhExclusao {get; set;}
-
 
     public Usuario ToEntity()
     {
@@ -23,9 +19,7 @@ public class UsuarioDTO
             Id = this.Id,
             NomeCompleto = this.NomeCompleto,
             NomeLogin = this.NomeLogin,
-            Senha = this.Senha,
-            DhInclusao = this.DhInclusao,
-            DhExclusao = this.DhExclusao
+            Senha = this.Senha
         };
     }
 }

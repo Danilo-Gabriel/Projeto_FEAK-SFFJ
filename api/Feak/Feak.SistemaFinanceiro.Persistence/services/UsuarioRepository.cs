@@ -37,7 +37,7 @@ public class UsuarioRepository : BaseRepository<Usuario>, IUsuarioRepository
             throw new Exception("Usuário não encontrado");
         }
 
-        usuario.DhExclusao = DateTime.Now;
+        usuario.DhExclusao = DateTime.UtcNow;
 
         _context.Usuarios.Update(usuario);
         await _context.SaveChangesAsync();
@@ -55,6 +55,7 @@ public class UsuarioRepository : BaseRepository<Usuario>, IUsuarioRepository
 
     public async Task<Usuario> CadastrarUsuario(Usuario dados)
     {
+        dados.DhInclusao = DateTime.UtcNow;
         await _context.Usuarios.AddAsync(dados);
         await _context.SaveChangesAsync();
 

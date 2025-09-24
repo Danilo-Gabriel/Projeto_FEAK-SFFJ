@@ -2,12 +2,15 @@
 using DomainService.Entities;
 using DomainService.Interfaces;
 using DomainService.Interfaces.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace DomainService.services;
 
 public class UsuarioDomainService : BaseDomainService<Usuario>, IUsuarioDomainService
 {
     private readonly IUsuarioRepository _usuarioRepository;
+    
+    private readonly PasswordHasher<object> _passwordHasher = new PasswordHasher<object>();
     
     public UsuarioDomainService(IUsuarioRepository usuarioRepository) : base(usuarioRepository)
     {
@@ -134,7 +137,7 @@ public class UsuarioDomainService : BaseDomainService<Usuario>, IUsuarioDomainSe
         ServiceResponse<UsuarioDTO> serviceResponse = new ServiceResponse<UsuarioDTO>();
         try
         {
-            dados.DhInclusao =  DateTime.Now;
+            dados.Senha = _passwordHasher.HashPassword(null, dados.Senha);
             serviceResponse.Dados = (await _usuarioRepository.CadastrarUsuario(dados.ToEntity())).toDTO();
              
         }

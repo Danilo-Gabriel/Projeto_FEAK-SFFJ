@@ -1,5 +1,6 @@
 ﻿using DomainService.DTOs;
 using DomainService.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Feak.SistemaFinanceiro.API.Controllers;
@@ -29,6 +30,7 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<ServiceResponse<List<UsuarioDTO>>>> ObterUsuarios()
     {
         return Ok(await _usuarioDomainService.ObterUsuarios());
