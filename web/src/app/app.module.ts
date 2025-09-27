@@ -9,6 +9,10 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { UsuarioComponent } from './pages/usuario/usuario.component';
 import { PagesComponent } from './pages/pages.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ProdutoComponent } from './pages/produto/produto.component';
+
 
 @NgModule({
   declarations: [
@@ -16,15 +20,17 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     LoginComponent,
     UsuarioComponent,
     PagesComponent,
-    SidebarComponent
+    SidebarComponent,
+    ProdutoComponent
   ],
   imports: [
     BrowserModule,
     ReactiveFormsModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
     LibsModule
   ],
-  providers: [],
+  providers: [ MessageService, ConfirmationService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

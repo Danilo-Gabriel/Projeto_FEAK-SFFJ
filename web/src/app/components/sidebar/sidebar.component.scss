@@ -207,6 +207,7 @@
    left: 250px;
    height: 100vh;
    width: calc(100% - 250px);
+   overflow-y: hidden;
    background: var(--body-color);
    transition: var(--tran-05);
 }
