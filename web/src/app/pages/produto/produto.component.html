@@ -1,6 +1,6 @@
 <p-toast />
 <div class="card" style="padding: 24px;">
-    <p-table #dt1 [value]="listaUsuarios"  [scrollable]="true"  [globalFilterFields]="['nomeCompleto', 'nomeLogin', 'ativo']"
+    <p-table #dt1 [value]="listaProdutos"  [scrollable]="true"  [globalFilterFields]="['nomeCompleto', 'nomeLogin', 'ativo']"
         selectionMode="single"   scrollHeight="calc(100vh - 220px)"  [tableStyle]="{ 'min-width': '50rem' }" [rows]="10"
         [showCurrentPageReport]="true"
         [currentPageReportTemplate]="'Exibindo {first} a {last} de {totalRecords} registros'" [paginator]="true">
@@ -16,43 +16,74 @@
                 </p-iconField>
 
                 <div class="pr-3">
-                    <p-button (onClick)="acaoUsuario()" severity="success" label="Novo cadastro" icon="pi pi-plus" />
+                    <p-button (onClick)="acaoProduto()" severity="success" label="Novo cadastro" icon="pi pi-plus" />
                 </div>
 
             </div>
         </ng-template>
         <ng-template pTemplate="header">
             <tr>
-                <th pSortableColumn="nomeCompleto" style="width:25%">
-                    Nome Completo <p-sortIcon field="nomeCompleto" />
+                <!-- <th pSortableColumn="id" style="width:10%">
+                    Código <p-sortIcon field="id" />
+                </th> -->
+                <th pSortableColumn="descricao" style="width:10%">
+                    Descrição <p-sortIcon field="descricao" />
                 </th>
-                <th pSortableColumn="nomeLogin" style="width:25%">
-                    Nome Login <p-sortIcon field="nomeLogin" />
+                <th pSortableColumn="precoCusto" style="width:12%">
+                    Preço custo <p-sortIcon field="precoCusto" />
                 </th>
-                <th pSortableColumn="ativo" style="width:25%">
-                    Status <p-sortIcon field="ativo" />
+                <th pSortableColumn="precoVenda" style="width:12%">
+                    Preço venda <p-sortIcon field="precoVenda" />
                 </th>
-                <th style="width: 25%;"></th>
+                <th pSortableColumn="estoqueAtual" style="width:12%">
+                    Estoque atual<p-sortIcon field="estoqueAtual" />
+                </th>
+
+                <th pSortableColumn="valorEstoque" style="width:12%">
+                    Valor estoque<p-sortIcon field="valorEstoque" />
+                </th>
+                <th pSortableColumn="valorVenda" style="width:12%">
+                    Valor venda<p-sortIcon field="valorVenda" />
+                </th>
+                <th pSortableColumn="status" style="width:12%">
+                    Status<p-sortIcon field="status" />
+                </th>
+                <th style="width: 12%;"></th>
             </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-user>
-            <tr [pSelectableRow]="user">
+        <ng-template pTemplate="body" let-product>
+            <tr [pSelectableRow]="product">
+                <!-- <td>
+                    {{ product.nomeCompleto }}
+                </td> -->
                 <td>
-                    {{ user.nomeCompleto }}
+                    {{ product.nomeLogin }}
                 </td>
                 <td>
-                    {{ user.nomeLogin }}
+                    {{ product.nomeCompleto }}
                 </td>
                 <td>
-                    {{ user.ativo ? 'ativo' : 'inativo' }}
+                    {{ product.nomeLogin }}
+                </td>
+                <td>
+                    {{ product.nomeCompleto }}
+                </td>
+                <td>
+                    {{ product.nomeLogin }}
+                </td>
+                <td>
+                    {{ product.nomeLogin }}
+                </td>
+                <td>
+                    {{ product.ativo ? 'ativo' : 'inativo' }}
                 </td>
                 <td style="display: flex;
                             align-items: flex-end;
                             gap: 15px;
                             justify-content: center;">
-                    <p-button icon="pi pi-pencil" class="mr-2" (onClick)="acaoUsuario(user)" [rounded]="true"
+                    <p-button icon="pi pi-pencil" class="mr-2" (onClick)="acaoProduto(product)" [rounded]="true"
                         [outlined]="true" severity="success" />
-                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"(onClick)="inforUsuario(user)" />
+                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"(onClick)="infoProduto(product)" />
                 </td>
             </tr>
         </ng-template>
@@ -74,7 +105,7 @@
 
 <div class="card flex justify-content-center">
     <p-dialog [header]="labelModel" [modal]="true" [closable]="true" [(visible)]="visivel" [style]="{ width: '35vw' }">
-        <form [formGroup]="formUsuario">
+        <form [formGroup]="formProduto">
             <div>
                 <div class="flex flex-column gap-3 mb-3">
                     <label for="nomeCompleto" class="font-semibold w-9rem">Nome Completo</label>

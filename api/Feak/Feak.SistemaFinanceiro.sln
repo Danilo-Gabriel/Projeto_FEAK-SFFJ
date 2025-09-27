@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feak.SistemaFinanceiro.Application", "Feak.SistemaFinanceiro.Application\Feak.SistemaFinanceiro.Application.csproj", "{D82980F9-7845-47E3-99A6-E60104DCC983}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feak.SistemaFinanceiro.API", "Feak.SistemaFinanceiro.API\Feak.SistemaFinanceiro.API.csproj", "{329F5DDA-8177-413E-9CEF-EB329FFD86E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feak.SistemaFinanceiro.DomainService", "Feak.SistemaFinanceiro.DomainService\Feak.SistemaFinanceiro.DomainService.csproj", "{16D58254-D53D-45FA-AC75-00435066B6EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feak.SistemaFinanceiro.Persistence", "Feak.SistemaFinanceiro.Persistence\Feak.SistemaFinanceiro.Persistence.csproj", "{5503DB2B-F62B-4C61-A508-5BBDF7002501}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feak.SistemaFinanceiro.Test", "Feak.SistemaFinanceiro.Test\Feak.SistemaFinanceiro.Test.csproj", "{BFFFF111-B747-4DD1-9E94-6824435F920B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D82980F9-7845-47E3-99A6-E60104DCC983}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D82980F9-7845-47E3-99A6-E60104DCC983}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D82980F9-7845-47E3-99A6-E60104DCC983}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D82980F9-7845-47E3-99A6-E60104DCC983}.Release|Any CPU.Build.0 = Release|Any CPU
+		{329F5DDA-8177-413E-9CEF-EB329FFD86E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{329F5DDA-8177-413E-9CEF-EB329FFD86E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{329F5DDA-8177-413E-9CEF-EB329FFD86E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{329F5DDA-8177-413E-9CEF-EB329FFD86E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16D58254-D53D-45FA-AC75-00435066B6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16D58254-D53D-45FA-AC75-00435066B6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16D58254-D53D-45FA-AC75-00435066B6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16D58254-D53D-45FA-AC75-00435066B6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5503DB2B-F62B-4C61-A508-5BBDF7002501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5503DB2B-F62B-4C61-A508-5BBDF7002501}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5503DB2B-F62B-4C61-A508-5BBDF7002501}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5503DB2B-F62B-4C61-A508-5BBDF7002501}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFFFF111-B747-4DD1-9E94-6824435F920B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFFFF111-B747-4DD1-9E94-6824435F920B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFFFF111-B747-4DD1-9E94-6824435F920B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFFFF111-B747-4DD1-9E94-6824435F920B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -8,6 +8,7 @@ import { PagesRoutingModule } from '../routing/pages-routing.module';
 @NgModule({
   providers: [MessageService],
   declarations: [
+
   ],
   imports: [
     CommonModule,
