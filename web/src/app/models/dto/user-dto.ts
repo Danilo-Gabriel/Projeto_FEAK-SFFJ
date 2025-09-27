@@ -1,6 +1,8 @@
 export interface UsuarioDTO{
-    id: number,
+    id: string,
     nomeCompleto: string,
     nomeLogin: string,
-    ativo: boolean
+    ativo: boolean,
+    dhInclusao: Date,
+    dhExclusao: Date
 }

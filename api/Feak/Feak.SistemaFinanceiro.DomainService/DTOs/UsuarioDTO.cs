@@ -11,6 +11,10 @@ public class UsuarioDTO
 
     public string Senha { get; set; }
     
+    public DateTime DhInclusao { get; set; }
+    
+    public DateTime? DhExclusao {get; set;}
+    
 
     public Usuario ToEntity()
     {

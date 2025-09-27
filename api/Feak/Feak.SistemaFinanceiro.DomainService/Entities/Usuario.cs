@@ -14,6 +14,7 @@ public class Usuario : BaseEntity
     [Column("senha")]
     public string Senha { get; set; }
     
+    
     public UsuarioDTO toDTO()
     {
         return new UsuarioDTO
@@ -21,7 +22,9 @@ public class Usuario : BaseEntity
             Id = this.Id,
             NomeCompleto = this.NomeCompleto,
             NomeLogin = this.NomeLogin,
-            Senha = this.Senha
+            Senha = this.Senha,
+            DhInclusao = this.DhInclusao,
+            DhExclusao = this.DhExclusao,
         };
     }
 }

@@ -5,7 +5,9 @@ import { AppMessageService } from '../../services/app-message.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { HttpServiceService } from '../../services/http-service.service';
-import { ServiceResponse } from '../../models/dto/service-response';
+import { UsuarioRequest } from '../../models/dto/request/user-request';
+import { ServiceResponse } from '../../models/dto/response/service-response';
+
 
 @Component({
   selector: 'app-usuario',
@@ -53,7 +55,7 @@ export class UsuarioComponent implements OnInit {
   
   formulario() {
     this.formUsuario = this.formBuilder.group({
-      id: [0],
+      id: [''],
       nomeCompleto: ['', Validators.required],
       nomeLogin: ['', Validators.required],
       senha: ['', Validators.required]
@@ -62,7 +64,6 @@ export class UsuarioComponent implements OnInit {
 
 
   onSubmit() {
-    console.log("TESTE", this.formUsuario)
     if (this.formUsuario.valid) {
     
       if(this.formUsuario.get('id')?.value == 0 || this.formUsuario.get('id')?.value == null){
@@ -121,8 +122,8 @@ export class UsuarioComponent implements OnInit {
 
   //  CRUD : TRANSFERIR PARA UM SERVICE DEPOIS
 
-  criarUsuario(novoUsuario: UsuarioDTO): void {
-    this.apiService.post<ServiceResponse<UsuarioDTO>>('usuario', novoUsuario)
+  criarUsuario(novoUsuario: UsuarioRequest): void {
+    this.apiService.post<ServiceResponse<UsuarioRequest>>('usuario', novoUsuario)
       .subscribe({
         next: (dados) => {
           console.log(dados, "DADOS")
@@ -148,7 +149,10 @@ export class UsuarioComponent implements OnInit {
     this.apiService.get<UsuarioDTO[]>('usuario')
       .subscribe({
         next: (data) => {
-          this.listaUsuarios = data.dados;
+          this.listaUsuarios = data.dados.map(x => ({
+            ...x,
+            ativo: x.dhExclusao != null ? false : true
+          }));
         },
         error: () => {
           this.message.showError("Erro ao buscar usuários");
@@ -171,7 +175,7 @@ export class UsuarioComponent implements OnInit {
       });
   }
 
-  inativarUsuario(id: number): void {
+  inativarUsuario(id: string): void {
     this.apiService.delete<ServiceResponse<UsuarioDTO>>(`usuario/${id}`)
       .subscribe({
       next: (dados) => {

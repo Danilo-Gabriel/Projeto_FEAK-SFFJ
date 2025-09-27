@@ -16,24 +16,24 @@ services:
     networks:
       - feak-net
 
-  keycloak:
-    build: .
-    container_name: keycloak-dev
-    command: ["start-dev"]
-    restart: always
-    environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/dbkeycloak
-      KC_DB_USERNAME: root
-      KC_DB_PASSWORD: admin
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    networks:
-      - feak-net
+#  keycloak:
+#    build: .
+#    container_name: keycloak-dev
+#    command: ["start-dev"]
+#    restart: always
+#    environment:
+#      KEYCLOAK_ADMIN: admin
+#      KEYCLOAK_ADMIN_PASSWORD: admin
+#      KC_DB: postgres
+#      KC_DB_URL: jdbc:postgresql://postgres:5432/dbkeycloak
+#      KC_DB_USERNAME: root
+#      KC_DB_PASSWORD: admin
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - postgres
+#    networks:
+#      - feak-net
 
 
 volumes:

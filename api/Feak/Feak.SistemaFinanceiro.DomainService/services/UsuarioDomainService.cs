@@ -32,6 +32,13 @@ public class UsuarioDomainService : BaseDomainService<Usuario>, IUsuarioDomainSe
 
         try
         {
+            if (dados == null)
+            {
+                serviceResponse.Mensagem = "Dados invalidos.";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
+            
             var usuario = await _usuarioRepository.GetByIdAsync(dados.Id);
 
             if (usuario == null)

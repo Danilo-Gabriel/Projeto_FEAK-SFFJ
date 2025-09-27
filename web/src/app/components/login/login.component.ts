@@ -4,7 +4,7 @@ import { environment } from '../../../environment/environment';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LoginDTO } from '../../models/dto/login-dto';
-import { ServiceResponse } from '../../models/dto/service-response';
+import { ServiceResponse } from '../../models/dto/response/service-response';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AppMessageService } from '../../services/app-message.service';
 
@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit{
         },
         error: (err) => {
           console.error('Erro ao logar:', err);
-          this.message.showError("Usuário ou senha incorretas")
+          this.message.showError(`${err.status}, Erro ao tentar logar usuário`)
         }
       });
 }

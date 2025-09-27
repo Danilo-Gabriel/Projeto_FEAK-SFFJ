@@ -15,35 +15,35 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddKeycloakWebApiAuthentication(builder.Configuration);
+// builder.Services.AddKeycloakWebApiAuthentication(builder.Configuration);
 builder.Services.AddControllers();
 
 
 
 builder.Services.AddSwaggerGen(c =>
 {
-    // c.SwaggerDoc("v1", new OpenApiInfo { Title = "FEAK", Version = "v1" });
-    var security = new OpenApiSecurityScheme
-    {
-        Name = "Keycloak",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.OpenIdConnect,
-        OpenIdConnectUrl =
-            new Uri(
-                $"{builder.Configuration["Keycloak:auth-server-url"]}realms/{builder.Configuration["Keycloak:realm"]}/.well-known/openid-configuration"),
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        Reference = new OpenApiReference
-        {
-            Id = "Bearer",
-            Type = ReferenceType.SecurityScheme
-        }
-    };
-    c.AddSecurityDefinition(security.Reference.Id, security);
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {security, Array.Empty<string>()}
-    });
+     c.SwaggerDoc("v1", new OpenApiInfo { Title = "FEAK", Version = "v1" });
+//     var security = new OpenApiSecurityScheme
+//     {
+//         Name = "Keycloak",
+//         In = ParameterLocation.Header,
+//         Type = SecuritySchemeType.OpenIdConnect,
+//         OpenIdConnectUrl =
+//             new Uri(
+//                 $"{builder.Configuration["Keycloak:auth-server-url"]}realms/{builder.Configuration["Keycloak:realm"]}/.well-known/openid-configuration"),
+//         Scheme = "bearer",
+//         BearerFormat = "JWT",
+//         Reference = new OpenApiReference
+//         {
+//             Id = "Bearer",
+//             Type = ReferenceType.SecurityScheme
+//         }
+//     };
+//     c.AddSecurityDefinition(security.Reference.Id, security);
+//     c.AddSecurityRequirement(new OpenApiSecurityRequirement
+//     {
+//         {security, Array.Empty<string>()}
+//     });
 });
 
 

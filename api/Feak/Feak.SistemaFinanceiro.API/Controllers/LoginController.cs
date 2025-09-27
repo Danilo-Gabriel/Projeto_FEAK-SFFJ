@@ -9,7 +9,7 @@ namespace Feak.SistemaFinanceiro.API.Controllers;
 [ApiController]
 public class LoginController : ControllerBase
 {
-    //todo class inteira será refatorada para implementação do keycloak
+    //todo class inteira será refatorada para implementação do keycloak ou JWT
 
     private readonly IUsuarioDomainService _usuarioDomainService;
 

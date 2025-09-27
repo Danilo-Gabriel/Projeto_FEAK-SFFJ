@@ -5,7 +5,7 @@ import { ConfirmationService } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Table } from 'primeng/table';
 import { ProdutoDTO } from '../../models/dto/produto-dto';
-import { ServiceResponse } from '../../models/dto/service-response';
+import { ServiceResponse } from '../../models/dto/response/service-response';
 
 @Component({
   selector: 'app-produto',

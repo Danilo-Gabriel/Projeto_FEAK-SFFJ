@@ -30,7 +30,6 @@ public class UsuarioController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<ActionResult<ServiceResponse<List<UsuarioDTO>>>> ObterUsuarios()
     {
         return Ok(await _usuarioDomainService.ObterUsuarios());
