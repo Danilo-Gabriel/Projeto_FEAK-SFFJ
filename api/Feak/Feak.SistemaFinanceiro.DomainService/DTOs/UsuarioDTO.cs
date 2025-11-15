@@ -20,7 +20,7 @@ public class UsuarioDTO
     {
         return new Usuario
         {
-            Id = this.Id,
+            Id =  this.Id,
             NomeCompleto = this.NomeCompleto,
             NomeLogin = this.NomeLogin,
             Senha = this.Senha

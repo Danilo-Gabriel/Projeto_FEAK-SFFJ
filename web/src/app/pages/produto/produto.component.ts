@@ -14,6 +14,7 @@ import { ServiceResponse } from '../../models/dto/response/service-response';
 })
 export class ProdutoComponent implements OnInit {
 
+texto: string = '';
 
   constructor(
     private apiService: HttpServiceService,
@@ -43,7 +44,16 @@ export class ProdutoComponent implements OnInit {
 
   /*  METÓDOS AUXILIAREIS */
 
+  exibirModificacao(event : string){
+    console.log(event, "MUDOU AQUI");
 
+    this.texto = event.toUpperCase()
+
+    console.log(this.texto);
+
+    
+    
+  }
   onFilterGlobal(event: Event) {
     const input = event.target as HTMLInputElement;
     const value = input?.value ?? '';

@@ -1,4 +1,5 @@
 ﻿using DomainService.DTOs;
+using DomainService.DTOs.Request;
 using DomainService.Entities;
 using DomainService.Interfaces;
 using DomainService.Interfaces.Services;
@@ -47,6 +48,10 @@ public class UsuarioDomainService : BaseDomainService<Usuario>, IUsuarioDomainSe
                 serviceResponse.Success = false;
                 return serviceResponse;
             }
+            
+            var exist = _usuarioRepository.GetByNomeLoginAsync(dados.NomeLogin);
+            
+            if(exist != null)
 
             usuario.NomeCompleto = dados.NomeCompleto;
             usuario.NomeLogin = dados.NomeLogin;
@@ -138,8 +143,7 @@ public class UsuarioDomainService : BaseDomainService<Usuario>, IUsuarioDomainSe
         return serviceResponse;
 
     }
-
-    public async Task<ServiceResponse<UsuarioDTO>> CadastrarUsuario(UsuarioDTO dados)
+    public async Task<ServiceResponse<UsuarioDTO>> CadastrarUsuario(UsuarioRequest dados)
     {
         ServiceResponse<UsuarioDTO> serviceResponse = new ServiceResponse<UsuarioDTO>();
         try

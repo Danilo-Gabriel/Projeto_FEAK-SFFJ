@@ -1,4 +1,5 @@
 ﻿using DomainService.DTOs;
+using DomainService.DTOs.Request;
 using DomainService.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ public class UsuarioController : ControllerBase
     
     
     [HttpPost]
-    public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> CadastrarUsuario([FromBody] UsuarioDTO request)
+    public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> CadastrarUsuario([FromBody] UsuarioRequest request)
     {
         return Ok(await _usuarioDomainService.CadastrarUsuario(request));
     }
