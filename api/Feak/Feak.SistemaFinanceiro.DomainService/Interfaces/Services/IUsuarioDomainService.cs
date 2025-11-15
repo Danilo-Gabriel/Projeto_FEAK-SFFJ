@@ -1,4 +1,5 @@
 ﻿using DomainService.DTOs;
+using DomainService.DTOs.Request;
 using DomainService.Entities;
 
 namespace DomainService.Interfaces.Services;
@@ -15,5 +16,5 @@ public interface IUsuarioDomainService : IBaseDomainService<Usuario>
 
     Task<ServiceResponse<UsuarioDTO>> InativarUsuarioPorId(Guid id);
 
-    Task<ServiceResponse<UsuarioDTO>> CadastrarUsuario(UsuarioDTO dados);
+    Task<ServiceResponse<UsuarioDTO>> CadastrarUsuario(UsuarioRequest dados);
 }

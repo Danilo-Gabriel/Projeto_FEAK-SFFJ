@@ -1,4 +1,5 @@
-﻿using DomainService.Interfaces;
+﻿using System.Data;
+using DomainService.Interfaces;
 using DomainService.Interfaces.Services;
 using DomainService.services;
 using Feak.SistemaFinanceiro.Persistencia.Context;
@@ -6,11 +7,23 @@ using Feak.SistemaFinanceiro.Persistencia.services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Npgsql;
 
 namespace Application.services;
 
 public static class Configuration
 {
+    
+    public static void AddDapperContexts(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("feak");
+
+        services.AddScoped<IDbConnection>(sp =>
+        {
+            return new NpgsqlConnection(connectionString);
+        });
+    }
+    
     public static void AddContextsServices(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("feak");

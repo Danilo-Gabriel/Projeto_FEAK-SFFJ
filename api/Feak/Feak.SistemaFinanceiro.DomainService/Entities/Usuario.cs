@@ -27,4 +27,6 @@ public class Usuario : BaseEntity
             DhExclusao = this.DhExclusao,
         };
     }
+    
+    public Usuario (){}
 }

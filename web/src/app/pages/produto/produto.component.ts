@@ -50,7 +50,7 @@ export class ProdutoComponent implements OnInit {
     this.dt1.filterGlobal(value, 'contains');
   }
 
-  
+
   formulario() {
     this.formProduto = this.formBuilder.group({
       id: [0],
@@ -65,7 +65,7 @@ export class ProdutoComponent implements OnInit {
   onSubmit() {
     console.log("TESTE", this.formProduto)
     if (this.formProduto.valid) {
-    
+
       if(this.formProduto.get('id')?.value == 0 || this.formProduto.get('id')?.value == null){
            this.criarUsuario(this.formProduto.value);
       }
@@ -73,7 +73,7 @@ export class ProdutoComponent implements OnInit {
         this.atualizarUsuario(this.formProduto.value);
       }
     }
-   
+
   }
 
 
@@ -144,7 +144,7 @@ export class ProdutoComponent implements OnInit {
       });
   }
 
-  
+
   obterUsuarios() {
     this.apiService.get<ProdutoDTO[]>('usuario')
       .subscribe({
