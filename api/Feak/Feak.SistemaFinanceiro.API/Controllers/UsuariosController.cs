@@ -1,4 +1,5 @@
-﻿using DomainService.DTOs;
+﻿using Application.services;
+using DomainService.DTOs;
 using DomainService.DTOs.Request;
 using DomainService.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -8,13 +9,42 @@ namespace Feak.SistemaFinanceiro.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UsuarioController : ControllerBase
+public class UsuariosController : ControllerBase
 {
     private readonly IUsuarioDomainService _usuarioDomainService;
+    
+    private readonly ObjectCompareService _compareService;
 
-    public UsuarioController(IUsuarioDomainService usuarioDomainService)
+    
+    
+    // [HttpPost("comparar")]
+    // public IActionResult Comparar([FromBody] UsuarioDTO novo)
+    // {
+    //     var antigo = new UsuarioDTO
+    //     {
+    //         NomeLogin = "Danilo",
+    //         NomeCompleto = "danilo@email.com",
+    //         Idade = 30
+    //     };
+    //
+    //     var result = _compareService.Compare(antigo, novo);
+    //
+    //     if (result.AreEqual)
+    //         return Ok("Nenhuma alteração encontrada.");
+    //
+    //     var diferencas = result.Differences.Select(d => new
+    //     {
+    //         Campo = DisplayNameResolver.GetDisplayName<UsuarioDTO>(d.PropertyName),
+    //         ValorAntigo = d.Object1Value,
+    //         ValorNovo = d.Object2Value
+    //     });
+    //
+    //     return Ok(diferencas);
+    // }
+    public UsuariosController(IUsuarioDomainService usuarioDomainService,  ObjectCompareService compareService)
     {
         _usuarioDomainService = usuarioDomainService;
+        _compareService = compareService;
     }
     
     

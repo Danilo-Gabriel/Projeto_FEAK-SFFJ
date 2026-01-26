@@ -1,15 +1,21 @@
-﻿using DomainService.Entities;
+﻿using System.ComponentModel;
+using DomainService.Entities;
 
 namespace DomainService.DTOs;
 
 public class UsuarioDTO
 {
     public Guid Id {get; set;}
+    
+    
+    [DisplayName("Nome completo")]
     public string NomeCompleto { get; set; }
 
     public string NomeLogin { get; set; }
 
     public string Senha { get; set; }
+    
+    public int Idade { get; set; }
     
     public DateTime DhInclusao { get; set; }
     

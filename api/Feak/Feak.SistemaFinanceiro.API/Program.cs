@@ -1,5 +1,6 @@
 using Application.services;
 using Keycloak.AuthServices.Authentication;
+using KellermanSoftware.CompareNetObjects;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -45,7 +46,6 @@ builder.Services.AddSwaggerGen(c =>
 //         {security, Array.Empty<string>()}
 //     });
 });
-
 
 
 Configuration.AddContextsServices(builder.Services, builder.Configuration);

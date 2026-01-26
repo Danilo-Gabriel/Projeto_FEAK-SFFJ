@@ -35,6 +35,10 @@ public static class Configuration
 
     public static void AddServices(this IServiceCollection services)
     {
+        
+        // SERVIÇOS 
+        services.AddScoped<ObjectCompareService>();
+        
         // Domain services
         services.AddTransient(typeof(IBaseDomainService<>),  typeof(BaseDomainService<>));
         services.AddTransient<IUsuarioDomainService, UsuarioDomainService>();

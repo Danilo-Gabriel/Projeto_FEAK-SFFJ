@@ -7,7 +7,7 @@ namespace Feak.SistemaFinanceiro.API.Controllers;
 
 [Route("api/login")]
 [ApiController]
-public class LoginController : ControllerBase
+public class LoginsController : ControllerBase
 {
     //todo class inteira será refatorada para implementação do keycloak ou JWT
 
@@ -15,7 +15,7 @@ public class LoginController : ControllerBase
 
     private readonly PasswordHasher<object> _passwordHasher = new PasswordHasher<object>();
 
-    public LoginController(IUsuarioDomainService usuarioService) {
+    public LoginsController(IUsuarioDomainService usuarioService) {
 
         _usuarioDomainService = usuarioService;
     }
