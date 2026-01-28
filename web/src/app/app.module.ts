@@ -7,7 +7,6 @@ import { LoginComponent } from './components/login/login.component';
 import { LibsModule } from '../assets/libs/libs.module';
 import { ReactiveFormsModule } from '@angular/forms';
 import { UsuarioComponent } from './pages/usuario/usuario.component';
-import { PagesComponent } from './pages/pages.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -19,10 +18,7 @@ import { DevelopComponent } from './components/develop/develop.component';
   declarations: [
     AppComponent,
     LoginComponent,
-    UsuarioComponent,
-    PagesComponent,
     SidebarComponent,
-    ProdutoComponent,
     DevelopComponent
   ],
   imports: [

@@ -31,7 +31,6 @@ exports: [
   ConfirmDialogModule,
   DynamicDialogModule,
   PaginatorModule
-  
 ]
 })
 export class LibsModule { }

@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PagesComponent } from '../pages/pages.component';
 import { UsuarioComponent } from '../pages/usuario/usuario.component';
 import { ProdutoComponent } from '../pages/produto/produto.component';
+import { SidebarComponent } from '../components/sidebar/sidebar.component';
 
 const routes: Routes = [
-    {path: '', component: PagesComponent,
+    {path: '', component: SidebarComponent,
 
     children: [
     { path: 'usuario', component: UsuarioComponent},

@@ -9,12 +9,13 @@
 .dtbcache.v2
 
 # Build
+
 bin/
 obj/
 
 # Node (para a parte web Angular)
 node_modules/
-dist/
+build/
 
 # Compiled output
 /dist

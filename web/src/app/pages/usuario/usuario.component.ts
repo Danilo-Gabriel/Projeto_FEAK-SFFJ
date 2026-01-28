@@ -5,8 +5,8 @@ import { AppMessageService } from '../../services/app-message.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { HttpServiceService } from '../../services/http-service.service';
-import { UsuarioRequest } from '../../models/dto/request/user-request';
-import { ServiceResponse } from '../../models/dto/response/service-response';
+import { UsuarioRequest } from '../../models/request/user-request';
+import { ServiceResponse } from '../../models/response/service-response';
 
 
 @Component({
