@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { LoginDTO } from '../../models/dto/login-dto';
 import { ServiceResponse } from '../../models/response/service-response';
 import { catchError, Observable, throwError } from 'rxjs';
-import { AppMessageService } from '../../services/app-message.service';
+import { AppMessageService } from '../../shared/services/app-message.service';
 
 @Component({
   selector: 'app-login',

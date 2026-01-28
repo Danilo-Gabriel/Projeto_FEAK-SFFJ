@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
 import { UsuarioDTO } from '../../models/dto/user-dto';
-import { AppMessageService } from '../../services/app-message.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
-import { HttpServiceService } from '../../services/http-service.service';
 import { UsuarioRequest } from '../../models/request/user-request';
 import { ServiceResponse } from '../../models/response/service-response';
+import { HttpServiceService } from '../../shared/services/http-service.service';
+import { AppMessageService } from '../../shared/services/app-message.service';
 
 
 @Component({

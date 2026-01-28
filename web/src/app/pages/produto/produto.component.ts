@@ -1,11 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { HttpServiceService } from '../../services/http-service.service';
-import { AppMessageService } from '../../services/app-message.service';
 import { ConfirmationService } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Table } from 'primeng/table';
 import { ProdutoDTO } from '../../models/dto/produto-dto';
 import { ServiceResponse } from '../../models/response/service-response';
+import { HttpServiceService } from '../../shared/services/http-service.service';
+import { AppMessageService } from '../../shared/services/app-message.service';
 
 @Component({
   selector: 'app-produto',

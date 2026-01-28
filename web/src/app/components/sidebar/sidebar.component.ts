@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AppMessageService } from '../../services/app-message.service';
 import { MessageService } from 'primeng/api';
+import { AppMessageService } from '../../shared/services/app-message.service';
 
 @Component({
   selector: 'app-sidebar',
