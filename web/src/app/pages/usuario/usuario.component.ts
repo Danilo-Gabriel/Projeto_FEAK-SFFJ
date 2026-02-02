@@ -146,7 +146,7 @@ export class UsuarioComponent implements OnInit {
 
   
   obterUsuarios() {
-    this.apiService.get<UsuarioDTO[]>('usuario')
+    this.apiService.get<UsuarioDTO[]>('Usuarios')
       .subscribe({
         next: (data) => {
           this.listaUsuarios = data.dados.map(x => ({

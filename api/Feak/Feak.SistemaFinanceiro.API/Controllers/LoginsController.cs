@@ -23,15 +23,10 @@ public class LoginsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> AuthUser(LoginDTO request)
     {
-        if (request == null) {
-            return BadRequest(new ServiceResponse<UsuarioDTO>()
-            {
-                Dados = null,
-                Mensagem = "Dados invalidos",
-                Success = false
-            });
-        }
-
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+        
         ServiceResponse<UsuarioDTO> response = new ServiceResponse<UsuarioDTO>();
 
         var usuario = await _usuarioDomainService.ObterUsuarioNomeLogin(request.NomeLogin);

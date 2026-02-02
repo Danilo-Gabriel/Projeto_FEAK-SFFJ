@@ -2,12 +2,17 @@
 using DomainService.Interfaces;
 using DomainService.Interfaces.Services;
 using DomainService.services;
+using Feak.SistemaFinanceiro.DomainService.Helpers.Config;
+using Feak.SistemaFinanceiro.DomainService.Security;
 using Feak.SistemaFinanceiro.Persistencia.Context;
 using Feak.SistemaFinanceiro.Persistencia.services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+
 
 namespace Application.services;
 
@@ -33,11 +38,32 @@ public static class Configuration
         
     }
 
+    public static void AddKeyclokServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        var keycloakConfig = configuration.GetSection("KeycloakConfig").Get<KeycloakConfig>();
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = $"{keycloakConfig.KeycloakBaseUrl}";
+                options.Audience = $"{keycloakConfig.KeycloakClientId}"; 
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true
+                };
+            });
+    }
+
     public static void AddServices(this IServiceCollection services)
     {
         
         // SERVIÇOS 
+        services.AddHttpContextAccessor();
         services.AddScoped<ObjectCompareService>();
+        services.AddScoped<ISecurityContext, SecurityContext>();
         
         // Domain services
         services.AddTransient(typeof(IBaseDomainService<>),  typeof(BaseDomainService<>));

@@ -1,11 +1,14 @@
-﻿using DomainService.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using DomainService.Entities;
 
 namespace DomainService.DTOs.Request;
 
 public class UsuarioRequest
 {
+    [Required(ErrorMessage = "Campo obrigatório")]
     public string NomeCompleto { get; set; }
 
+    [Required(ErrorMessage = "Campo obrigatório")]
     public string NomeLogin { get; set; }
 
     public string Senha { get; set; }

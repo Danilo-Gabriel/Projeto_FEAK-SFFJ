@@ -2,8 +2,10 @@
 using DomainService.DTOs;
 using DomainService.DTOs.Request;
 using DomainService.Interfaces.Services;
+using Feak.SistemaFinanceiro.DomainService.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 
 namespace Feak.SistemaFinanceiro.API.Controllers;
 
@@ -14,6 +16,8 @@ public class UsuariosController : ControllerBase
     private readonly IUsuarioDomainService _usuarioDomainService;
     
     private readonly ObjectCompareService _compareService;
+    
+    private readonly ISecurityContext  _securityContext;
 
     
     
@@ -41,17 +45,23 @@ public class UsuariosController : ControllerBase
     //
     //     return Ok(diferencas);
     // }
-    public UsuariosController(IUsuarioDomainService usuarioDomainService,  ObjectCompareService compareService)
+    public UsuariosController(IUsuarioDomainService usuarioDomainService,  ObjectCompareService compareService, ISecurityContext securityContext)
     {
         _usuarioDomainService = usuarioDomainService;
         _compareService = compareService;
+        _securityContext = securityContext;
     }
-    
+     
     
     [HttpPost]
     public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> CadastrarUsuario([FromBody] UsuarioRequest request)
     {
-        return Ok(await _usuarioDomainService.CadastrarUsuario(request));
+        if(!ModelState.IsValid)
+            return BadRequest(ModelState);
+        
+        var result = await _usuarioDomainService.CadastrarUsuario(request);
+        
+        return Ok(result);
     }
     
     [HttpPut]
@@ -61,9 +71,13 @@ public class UsuariosController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<ServiceResponse<List<UsuarioDTO>>>> ObterUsuarios()
     {
+        var email = _securityContext.GetEmail();
+        var nome = _securityContext.GetUserName(); 
         return Ok(await _usuarioDomainService.ObterUsuarios());
+        
     }
 
     [HttpDelete("{id}")]
