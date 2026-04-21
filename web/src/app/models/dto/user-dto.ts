@@ -4,5 +4,5 @@ export interface UsuarioDTO{
     nomeLogin: string,
     ativo: boolean,
     dhInclusao: Date,
-    dhExclusao: Date
+    dhExclusao: Date | null
 }

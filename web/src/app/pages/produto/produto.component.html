@@ -1,133 +1,114 @@
 <p-toast />
-<div class="card" style="padding: 24px;">
-    <p-table #dt1 [value]="listaProdutos"  [scrollable]="true"  [globalFilterFields]="['nomeCompleto', 'nomeLogin', 'ativo']"
-        selectionMode="single"   scrollHeight="calc(100vh - 220px)"  [tableStyle]="{ 'min-width': '50rem' }" [rows]="10"
-        [showCurrentPageReport]="true"
-        [currentPageReportTemplate]="'Exibindo {first} a {last} de {totalRecords} registros'" [paginator]="true">
-        <ng-template pTemplate="caption">
-            <div style="display: flex; justify-content: space-between;">
+<p-confirmDialog />
 
+<section class="produto-page">
+    <div class="produto-header">
+        <div>
+            <span class="eyebrow">Cadastro e importação</span>
+            <h1>Produtos</h1>
+            <p>Mantenha o catálogo do PDV com cadastro manual ou importação por planilha.</p>
+        </div>
 
-                <p-iconField iconPosition="left">
-                    <p-inputIcon>
-                        <i class="pi pi-search"></i>
-                    </p-inputIcon>
-                    <input pInputText type="text" (input)="onFilterGlobal($event)" placeholder="Search" />
-                </p-iconField>
+        <div class="produto-actions">
+            <input #fileInput type="file" accept=".xlsx,.xls" hidden (change)="onArquivoSelecionado($event)" />
+            <p-button label="Baixar template" icon="pi pi-download" severity="secondary" [outlined]="true" (onClick)="baixarTemplateImportacao()" />
+            <p-button label="Importar produtos" icon="pi pi-upload" severity="contrast" [loading]="importando" (onClick)="abrirImportacao()" />
+            <p-button label="Novo produto" icon="pi pi-plus" severity="success" (onClick)="acaoProduto()" />
+        </div>
+    </div>
 
-                <div class="pr-3">
-                    <p-button (onClick)="acaoProduto()" severity="success" label="Novo cadastro" icon="pi pi-plus" />
+    <div class="produto-table-card">
+        <p-table
+            #dt1
+            [value]="listaProdutos"
+            [scrollable]="true"
+            [globalFilterFields]="['codigoBarras', 'descricao', 'precoCusto', 'precoVenda', 'estoqueAtual']"
+            selectionMode="single"
+            scrollHeight="calc(100vh - 280px)"
+            [tableStyle]="{ 'min-width': '60rem' }"
+            [rows]="10"
+            [showCurrentPageReport]="true"
+            [currentPageReportTemplate]="'Exibindo {first} a {last} de {totalRecords} registros'"
+            [paginator]="true">
+            <ng-template pTemplate="caption">
+                <div class="table-caption">
+                    <p-iconField iconPosition="left">
+                        <p-inputIcon>
+                            <i class="pi pi-search"></i>
+                        </p-inputIcon>
+                        <input pInputText type="text" (input)="onFilterGlobal($event)" placeholder="Buscar produto" />
+                    </p-iconField>
                 </div>
+            </ng-template>
 
-            </div>
-        </ng-template>
-        <ng-template pTemplate="header">
-            <tr>
-                <!-- <th pSortableColumn="id" style="width:10%">
-                    Código <p-sortIcon field="id" />
-                </th> -->
-                <th pSortableColumn="descricao" style="width:10%">
-                    Descrição <p-sortIcon field="descricao" />
-                </th>
-                <th pSortableColumn="precoCusto" style="width:12%">
-                    Preço custo <p-sortIcon field="precoCusto" />
-                </th>
-                <th pSortableColumn="precoVenda" style="width:12%">
-                    Preço venda <p-sortIcon field="precoVenda" />
-                </th>
-                <th pSortableColumn="estoqueAtual" style="width:12%">
-                    Estoque atual<p-sortIcon field="estoqueAtual" />
-                </th>
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="codigoBarras">Código barras <p-sortIcon field="codigoBarras" /></th>
+                    <th pSortableColumn="descricao">Descrição <p-sortIcon field="descricao" /></th>
+                    <th pSortableColumn="precoCusto">Preço custo <p-sortIcon field="precoCusto" /></th>
+                    <th pSortableColumn="precoVenda">Preço venda <p-sortIcon field="precoVenda" /></th>
+                    <th pSortableColumn="estoqueAtual">Estoque <p-sortIcon field="estoqueAtual" /></th>
+                    <th>Valor em estoque</th>
+                    <th></th>
+                </tr>
+            </ng-template>
 
-                <th pSortableColumn="valorEstoque" style="width:12%">
-                    Valor estoque<p-sortIcon field="valorEstoque" />
-                </th>
-                <th pSortableColumn="valorVenda" style="width:12%">
-                    Valor venda<p-sortIcon field="valorVenda" />
-                </th>
-                <th pSortableColumn="status" style="width:12%">
-                    Status<p-sortIcon field="status" />
-                </th>
-                <th style="width: 12%;"></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-product>
-            <tr [pSelectableRow]="product">
-                <!-- <td>
-                    {{ product.nomeCompleto }}
-                </td> -->
-                <td>
-                    {{ product.nomeLogin }}
-                </td>
-                <td>
-                    {{ product.nomeCompleto }}
-                </td>
-                <td>
-                    {{ product.nomeLogin }}
-                </td>
-                <td>
-                    {{ product.nomeCompleto }}
-                </td>
-                <td>
-                    {{ product.nomeLogin }}
-                </td>
-                <td>
-                    {{ product.nomeLogin }}
-                </td>
-                <td>
-                    {{ product.ativo ? 'ativo' : 'inativo' }}
-                </td>
-                <td style="display: flex;
-                            align-items: flex-end;
-                            gap: 15px;
-                            justify-content: center;">
-                    <p-button icon="pi pi-pencil" class="mr-2" (onClick)="acaoProduto(product)" [rounded]="true"
-                        [outlined]="true" severity="success" />
-                    <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"(onClick)="infoProduto(product)" />
-                </td>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-            <tr>
-                <td colspan="4">Registros não encontratos.</td>
-            </tr>
-        </ng-template>
-    </p-table>
+            <ng-template pTemplate="body" let-product>
+                <tr [pSelectableRow]="product">
+                    <td>{{ product.codigoBarras }}</td>
+                    <td>{{ product.descricao }}</td>
+                    <td>{{ product.precoCusto | currency:'BRL' }}</td>
+                    <td>{{ product.precoVenda | currency:'BRL' }}</td>
+                    <td>{{ product.estoqueAtual }}</td>
+                    <td>{{ product.precoCusto * product.estoqueAtual | currency:'BRL' }}</td>
+                    <td class="row-actions">
+                        <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" severity="success" (onClick)="acaoProduto(product)" />
+                        <p-button icon="pi pi-trash" [rounded]="true" [outlined]="true" severity="danger" (onClick)="infoProduto(product)" />
+                    </td>
+                </tr>
+            </ng-template>
 
-    <div class="card flex justify-content-center">
-    <!-- <p-paginator
-        [first]="2"
-        [rows]="10"
-        [totalRecords]="10"
-        [rowsPerPageOptions]="[10, 20, 30]" /> -->
-</div>
-</div>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="7">Nenhum produto encontrado.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+</section>
 
-<div class="card flex justify-content-center">
-    <p-dialog [header]="labelModel" [modal]="true" [closable]="true" [(visible)]="visivel" [style]="{ width: '35vw' }">
-        <form [formGroup]="formProduto">
-            <div>
-                <div class="flex flex-column gap-3 mb-3">
-                    <label for="nomeCompleto" class="font-semibold w-9rem">Nome Completo</label>
-                    <input pInputText id="nomeCompleto" formControlName="nomeCompleto" class="flex-auto"
-                        autocomplete="off" />
-                </div>
-                <div class="flex flex-column gap-3 mb-5">
-                    <label for="nomeLogin" class="font-semibold w-6rem">Nome Login</label>
-                    <input pInputText id="nomeLogin" formControlName="nomeLogin" class="flex-auto" autocomplete="off" />
-                </div>
+<p-dialog [header]="labelModel" [modal]="true" [closable]="true" [(visible)]="visivel" [style]="{ width: '32rem' }">
+    <form [formGroup]="formProduto" class="produto-form">
+        <div class="field-group">
+            <label for="codigoBarras">Código barras</label>
+            <input id="codigoBarras" pInputText formControlName="codigoBarras" autocomplete="off" />
+        </div>
 
-                <div *ngIf="labelModel == 'Cadastrar'" class="flex flex-column gap-3 mb-5">
-                    <label for="senha" class="font-semibold w-6rem">Senha</label>
-                    <p-password class="f-passwword" formControlName="senha" [toggleMask]="true" [feedback]="false" />
-                </div>
+        <div class="field-group">
+            <label for="descricao">Descrição</label>
+            <input id="descricao" pInputText formControlName="descricao" autocomplete="off" />
+        </div>
+
+        <div class="field-grid">
+            <div class="field-group">
+                <label for="precoCusto">Preço custo</label>
+                <input id="precoCusto" pInputText type="number" min="0" step="0.01" formControlName="precoCusto" />
             </div>
 
-
-            <div class="flex justify-content-end gap-2">
-                <p-button label="Cancel" severity="secondary" (onClick)="fechar()"/>
-                <p-button label="Save" (onClick)="onSubmit()" />
+            <div class="field-group">
+                <label for="precoVenda">Preço venda</label>
+                <input id="precoVenda" pInputText type="number" min="0" step="0.01" formControlName="precoVenda" />
             </div>
-        </form>
-    </p-dialog>
-</div>
+        </div>
+
+        <div class="field-group">
+            <label for="estoqueAtual">Estoque atual</label>
+            <input id="estoqueAtual" pInputText type="number" min="0" step="1" formControlName="estoqueAtual" />
+        </div>
+
+        <div class="dialog-actions">
+            <p-button label="Cancelar" severity="secondary" [outlined]="true" (onClick)="fechar()" />
+            <p-button label="Salvar" severity="success" (onClick)="onSubmit()" />
+        </div>
+    </form>
+</p-dialog>

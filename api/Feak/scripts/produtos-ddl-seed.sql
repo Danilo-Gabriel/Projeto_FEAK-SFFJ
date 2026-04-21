@@ -1,0 +1,92 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE SCHEMA IF NOT EXISTS feak_sf;
+
+SET search_path TO feak_sf;
+
+CREATE TABLE IF NOT EXISTS "Produtos" (
+    "Id" uuid NOT NULL DEFAULT gen_random_uuid(),
+    codigo_barras text NOT NULL,
+    descricao text NOT NULL,
+    preco_custo numeric(18,2) NOT NULL DEFAULT 0,
+    preco_venda numeric(18,2) NOT NULL DEFAULT 0,
+    estoque_atual integer NOT NULL DEFAULT 0,
+    "DhInclusao" timestamp with time zone NOT NULL DEFAULT now(),
+    "DhExclusao" timestamp with time zone NULL,
+    CONSTRAINT "PK_Produtos" PRIMARY KEY ("Id")
+);
+
+ALTER TABLE "Produtos"
+    ADD COLUMN IF NOT EXISTS codigo_barras text;
+
+ALTER TABLE "Produtos"
+    ALTER COLUMN codigo_barras SET DEFAULT '';
+
+UPDATE "Produtos"
+SET codigo_barras = 'PDV-' || SUBSTRING(REPLACE(CAST("Id" AS text), '-', ''), 1, 10)
+WHERE codigo_barras IS NULL OR codigo_barras = '';
+
+ALTER TABLE "Produtos"
+    ALTER COLUMN codigo_barras SET NOT NULL;
+
+CREATE INDEX IF NOT EXISTS "IX_Produtos_Descricao"
+    ON "Produtos" (descricao);
+
+CREATE UNIQUE INDEX IF NOT EXISTS "IX_Produtos_CodigoBarras"
+    ON "Produtos" (codigo_barras);
+
+CREATE TABLE IF NOT EXISTS "Vendas" (
+    "Id" uuid NOT NULL DEFAULT gen_random_uuid(),
+    numero_venda text NOT NULL,
+    consumidor text NOT NULL,
+    forma_pagamento text NOT NULL,
+    subtotal numeric(18,2) NOT NULL DEFAULT 0,
+    desconto_total numeric(18,2) NOT NULL DEFAULT 0,
+    acrescimo numeric(18,2) NOT NULL DEFAULT 0,
+    total numeric(18,2) NOT NULL DEFAULT 0,
+    "DhInclusao" timestamp with time zone NOT NULL DEFAULT now(),
+    "DhExclusao" timestamp with time zone NULL,
+    CONSTRAINT "PK_Vendas" PRIMARY KEY ("Id")
+);
+
+CREATE TABLE IF NOT EXISTS "VendaItens" (
+    "Id" uuid NOT NULL DEFAULT gen_random_uuid(),
+    venda_id uuid NOT NULL,
+    produto_id uuid NOT NULL,
+    codigo_produto text NOT NULL,
+    descricao_produto text NOT NULL,
+    quantidade integer NOT NULL DEFAULT 1,
+    preco_unitario numeric(18,2) NOT NULL DEFAULT 0,
+    desconto_valor numeric(18,2) NOT NULL DEFAULT 0,
+    desconto_percentual numeric(18,2) NOT NULL DEFAULT 0,
+    total_item numeric(18,2) NOT NULL DEFAULT 0,
+    "DhInclusao" timestamp with time zone NOT NULL DEFAULT now(),
+    "DhExclusao" timestamp with time zone NULL,
+    CONSTRAINT "PK_VendaItens" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_VendaItens_Vendas" FOREIGN KEY (venda_id) REFERENCES "Vendas"("Id"),
+    CONSTRAINT "FK_VendaItens_Produtos" FOREIGN KEY (produto_id) REFERENCES "Produtos"("Id")
+);
+
+INSERT INTO "Produtos" ("Id", codigo_barras, descricao, preco_custo, preco_venda, estoque_atual, "DhInclusao", "DhExclusao")
+VALUES
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e01', '7891000100101', 'Arroz Tipo 1 5kg', 22.50, 31.90, 18, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e02', '7891000100102', 'Feijao Carioca 1kg', 5.80, 8.90, 32, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e03', '7891000100103', 'Oleo de Soja 900ml', 4.90, 7.50, 24, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e04', '7891000100104', 'Cafe Torrado 500g', 11.50, 17.90, 14, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e05', '7891000100105', 'Acucar Refinado 1kg', 3.20, 5.40, 26, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e06', '7891000100106', 'Macarrao Espaguete 500g', 2.90, 4.99, 40, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e07', '7891000100107', 'Sabonete 90g', 1.10, 2.49, 60, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e08', '7891000100108', 'Detergente Neutro 500ml', 1.75, 3.29, 28, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e09', '7891000100109', 'Leite Integral 1L', 3.95, 5.89, 36, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e10', '7891000100110', 'Biscoito Recheado 120g', 1.65, 2.99, 48, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e11', '7891000100111', 'Refrigerante Cola 2L', 5.10, 8.79, 21, now(), NULL),
+    ('9d1f52d7-5c99-4dd2-9a6c-2d31f3f65e12', '7891000100112', 'Agua Mineral 500ml', 0.80, 1.99, 72, now(), NULL)
+ON CONFLICT ("Id") DO NOTHING;
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+SELECT '20260421000200_add_vendas_and_codigo_barras', '8.0.20'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM "__EFMigrationsHistory"
+    WHERE "MigrationId" = '20260421000200_add_vendas_and_codigo_barras'
+);

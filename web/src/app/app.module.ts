@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { APP_INITIALIZER, DEFAULT_CURRENCY_CODE, LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './routing/app-routing.module';
@@ -39,13 +39,21 @@ export function initializeKeycloak(keycloakInit: KeycloakInitService) {
     MessageService,
     KeycloakService, 
     ConfirmationService,
-    KeycloakInitService,
     {
-      provide: APP_INITIALIZER,
-      useFactory: initializeKeycloak,
-      deps: [KeycloakInitService],
-      multi: true
+      provide: LOCALE_ID,
+      useValue: 'pt-BR'
     },
+    {
+      provide: DEFAULT_CURRENCY_CODE,
+      useValue: 'BRL'
+    },
+    // KeycloakInitService,
+    // {
+    //   provide: APP_INITIALIZER,
+    //   useFactory: initializeKeycloak,
+    //   deps: [KeycloakInitService],
+    //   multi: true
+    // },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: CustomKeycloakInterceptor,

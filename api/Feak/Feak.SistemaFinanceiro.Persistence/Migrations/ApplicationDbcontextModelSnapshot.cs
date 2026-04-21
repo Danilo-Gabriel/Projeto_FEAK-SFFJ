@@ -22,6 +22,155 @@ namespace Feak.SistemaFinanceiro.Persistencia.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("DomainService.Entities.Produto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CodigoBarras")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_barras");
+
+                    b.Property<DateTime?>("DhExclusao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DhInclusao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("descricao");
+
+                    b.Property<int>("EstoqueAtual")
+                        .HasColumnType("integer")
+                        .HasColumnName("estoque_atual");
+
+                    b.Property<decimal>("PrecoCusto")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("preco_custo");
+
+                    b.Property<decimal>("PrecoVenda")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("preco_venda");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CodigoBarras")
+                        .IsUnique();
+
+                    b.ToTable("Produtos");
+                });
+
+            modelBuilder.Entity("DomainService.Entities.Venda", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Acrescimo")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("acrescimo");
+
+                    b.Property<string>("Consumidor")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("consumidor");
+
+                    b.Property<decimal>("DescontoTotal")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("desconto_total");
+
+                    b.Property<DateTime?>("DhExclusao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DhInclusao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("FormaPagamento")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("forma_pagamento");
+
+                    b.Property<string>("NumeroVenda")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("numero_venda");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("subtotal");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Vendas");
+                });
+
+            modelBuilder.Entity("DomainService.Entities.VendaItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CodigoProduto")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("codigo_produto");
+
+                    b.Property<string>("DescricaoProduto")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("descricao_produto");
+
+                    b.Property<decimal>("DescontoPercentual")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("desconto_percentual");
+
+                    b.Property<decimal>("DescontoValor")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("desconto_valor");
+
+                    b.Property<DateTime?>("DhExclusao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DhInclusao")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("PrecoUnitario")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("preco_unitario");
+
+                    b.Property<Guid>("ProdutoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("produto_id");
+
+                    b.Property<int>("Quantidade")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantidade");
+
+                    b.Property<decimal>("TotalItem")
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("total_item");
+
+                    b.Property<Guid>("VendaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("venda_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProdutoId");
+
+                    b.HasIndex("VendaId");
+
+                    b.ToTable("VendaItens");
+                });
+
             modelBuilder.Entity("DomainService.Entities.Usuario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -52,6 +201,30 @@ namespace Feak.SistemaFinanceiro.Persistencia.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("DomainService.Entities.VendaItem", b =>
+                {
+                    b.HasOne("DomainService.Entities.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DomainService.Entities.Venda", "Venda")
+                        .WithMany("Itens")
+                        .HasForeignKey("VendaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Produto");
+
+                    b.Navigation("Venda");
+                });
+
+            modelBuilder.Entity("DomainService.Entities.Venda", b =>
+                {
+                    b.Navigation("Itens");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,9 +4,9 @@ import { UsuarioDTO } from '../../models/dto/user-dto';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
 import { UsuarioRequest } from '../../models/request/user-request';
-import { ServiceResponse } from '../../models/response/service-response';
-import { HttpServiceService } from '../../shared/services/http-service.service';
+import { UsuarioUpdateRequest } from '../../models/request/user-update-request';
 import { AppMessageService } from '../../shared/services/app-message.service';
+import { UsuarioService } from './services/usuario.service';
 
 
 @Component({
@@ -18,7 +18,7 @@ export class UsuarioComponent implements OnInit {
 
 
   constructor(
-    private apiService: HttpServiceService,
+    private usuarioService: UsuarioService,
     private message: AppMessageService,
     private confirmationService: ConfirmationService,
     private formBuilder: FormBuilder
@@ -59,7 +59,7 @@ export class UsuarioComponent implements OnInit {
       nomeCompleto: ['', Validators.required],
       nomeLogin: ['', Validators.required],
       senha: ['', Validators.required]
-    })
+    });
   }
 
 
@@ -67,10 +67,14 @@ export class UsuarioComponent implements OnInit {
     if (this.formUsuario.valid) {
     
       if(this.formUsuario.get('id')?.value == 0 || this.formUsuario.get('id')?.value == null){
-           this.criarUsuario(this.formUsuario.value);
+           this.criarUsuario(this.formUsuario.value as UsuarioRequest);
       }
       else{
-        this.atualizarUsuario(this.formUsuario.value);
+        this.atualizarUsuario({
+          id: this.formUsuario.get('id')?.value,
+          nomeCompleto: this.formUsuario.get('nomeCompleto')?.value,
+          nomeLogin: this.formUsuario.get('nomeLogin')?.value
+        });
       }
     }
    
@@ -81,12 +85,22 @@ export class UsuarioComponent implements OnInit {
   acaoUsuario(user?: UsuarioDTO) {
     if(user?.id != null && user != undefined){
       this.labelModel = "Editar";
-      this.formUsuario.patchValue(user);
+      this.formUsuario.patchValue({
+        id: user.id,
+        nomeCompleto: user.nomeCompleto,
+        nomeLogin: user.nomeLogin,
+        senha: ''
+      });
+      this.formUsuario.get('senha')?.clearValidators();
     }
     else{
       this.labelModel = "Cadastrar";
       this.formUsuario.reset();
+      this.formUsuario.get('senha')?.setValidators([Validators.required]);
     }
+
+    this.formUsuario.get('senha')?.setValue('');
+    this.formUsuario.get('senha')?.updateValueAndValidity();
 
      this.visivel = true;
   }
@@ -123,10 +137,9 @@ export class UsuarioComponent implements OnInit {
   //  CRUD : TRANSFERIR PARA UM SERVICE DEPOIS
 
   criarUsuario(novoUsuario: UsuarioRequest): void {
-    this.apiService.post<ServiceResponse<UsuarioRequest>>('usuario', novoUsuario)
+    this.usuarioService.cadastrarUsuario(novoUsuario)
       .subscribe({
         next: (dados) => {
-          console.log(dados, "DADOS")
           if(dados.success == false){
               this.message.showError("Falha ao criar o usuário");
               this.message.showError(dados.mensagem);
@@ -146,10 +159,10 @@ export class UsuarioComponent implements OnInit {
 
   
   obterUsuarios() {
-    this.apiService.get<UsuarioDTO[]>('Usuarios')
+    this.usuarioService.listarUsuarios()
       .subscribe({
         next: (data) => {
-          this.listaUsuarios = data.dados.map(x => ({
+          this.listaUsuarios = (data.dados ?? []).map(x => ({
             ...x,
             ativo: x.dhExclusao != null ? false : true
           }));
@@ -161,10 +174,15 @@ export class UsuarioComponent implements OnInit {
   }
 
 
-  atualizarUsuario(usuario: UsuarioDTO): void {
-    this.apiService.put<UsuarioDTO>(`usuario`, usuario)
+  atualizarUsuario(usuario: UsuarioUpdateRequest): void {
+    this.usuarioService.atualizarUsuario(usuario)
       .subscribe({
-        next: (dad) => {
+        next: (dados) => {
+          if(dados.success == false){
+            this.message.showError(dados.mensagem || "Falha ao atualizar usuário");
+            return;
+          }
+
           this.message.showSuccess("Usuário atualizado");
           this.obterUsuarios();
           this.fechar();
@@ -176,7 +194,7 @@ export class UsuarioComponent implements OnInit {
   }
 
   inativarUsuario(id: string): void {
-    this.apiService.delete<ServiceResponse<UsuarioDTO>>(`usuario/${id}`)
+    this.usuarioService.excluirUsuario(id)
       .subscribe({
       next: (dados) => {
           if(dados.success == false){

@@ -1,11 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ConfirmationService } from 'primeng/api';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
 import { ProdutoDTO } from '../../models/dto/produto-dto';
-import { ServiceResponse } from '../../models/response/service-response';
-import { HttpServiceService } from '../../shared/services/http-service.service';
+import { ConfirmationService } from 'primeng/api';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ProdutoRequest } from '../../models/request/produto-request';
 import { AppMessageService } from '../../shared/services/app-message.service';
+import { ProdutoService } from './services/produto.service';
 
 @Component({
   selector: 'app-produto',
@@ -13,180 +13,210 @@ import { AppMessageService } from '../../shared/services/app-message.service';
   styleUrl: './produto.component.scss'
 })
 export class ProdutoComponent implements OnInit {
-
-
   constructor(
-    private apiService: HttpServiceService,
-    private message: AppMessageService,
+    private produtoService: ProdutoService,
+    private appMessageService: AppMessageService,
     private confirmationService: ConfirmationService,
     private formBuilder: FormBuilder
   ) { }
 
-
-  /*  ATRIBUTOS */
-
   @ViewChild('dt1') dt1!: Table;
-  public formProduto!: FormGroup
-  public listaProdutos!: ProdutoDTO[];
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  public formProduto!: FormGroup;
+  public listaProdutos: ProdutoDTO[] = [];
   public visivel: boolean = false;
-  public labelModel: string = ''
-
-
-  /*  METÓDOS HERDADOS */
+  public labelModel: string = '';
+  public importando: boolean = false;
 
   ngOnInit(): void {
-    this.obterUsuarios();
     this.formulario();
+    this.obterProdutos();
   }
 
-
-
-  /*  METÓDOS AUXILIAREIS */
-
-
-  onFilterGlobal(event: Event) {
+  onFilterGlobal(event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = input?.value ?? '';
     this.dt1.filterGlobal(value, 'contains');
   }
 
-
-  formulario() {
+  formulario(): void {
     this.formProduto = this.formBuilder.group({
-      id: [0],
+      id: [''],
+      codigoBarras: ['', Validators.required],
       descricao: ['', Validators.required],
-      precoCusto: [0, Validators.required],
-      precoVenda: [0, Validators.required],
-      estoqueAtual: ['', Validators.required]
-    })
+      precoCusto: [0, [Validators.required, Validators.min(0)]],
+      precoVenda: [0, [Validators.required, Validators.min(0)]],
+      estoqueAtual: [0, [Validators.required, Validators.min(0)]]
+    });
   }
 
-
-  onSubmit() {
-    console.log("TESTE", this.formProduto)
+  onSubmit(): void {
     if (this.formProduto.valid) {
-
-      if(this.formProduto.get('id')?.value == 0 || this.formProduto.get('id')?.value == null){
-           this.criarUsuario(this.formProduto.value);
+      const id = this.formProduto.get('id')?.value as string;
+      if (!id) {
+        this.criarProduto(this.formProduto.value as ProdutoRequest);
       }
-      else{
-        this.atualizarUsuario(this.formProduto.value);
+      else {
+        this.atualizarProduto(this.formProduto.value as ProdutoDTO);
       }
     }
-
   }
 
-
-
-  acaoProduto(product?: ProdutoDTO) {
-    if(product?.id != null && product != undefined){
-      this.labelModel = "Editar";
-      this.formProduto.patchValue(product);
+  acaoProduto(produto?: ProdutoDTO): void {
+    if (produto?.id) {
+      this.labelModel = 'Editar produto';
+      this.formProduto.patchValue(produto);
     }
-    else{
-      this.labelModel = "Cadastrar";
+    else {
+      this.labelModel = 'Novo produto';
       this.formProduto.reset();
+      this.formProduto.patchValue({
+        id: '',
+        codigoBarras: '',
+        precoCusto: 0,
+        precoVenda: 0,
+        estoqueAtual: 0
+      });
     }
 
-     this.visivel = true;
+    this.visivel = true;
   }
 
-
-  infoProduto(produtc: ProdutoDTO) {
+  infoProduto(produto: ProdutoDTO): void {
     this.confirmationService.confirm({
-      message: `Deseja seguir com exclusão do produto ${produtc.descricao}?`,
+      message: `Deseja seguir com exclusão do produto ${produto.descricao}?`,
       header: 'Confirmação',
       icon: 'pi pi-info-circle',
-      acceptButtonStyleClass: "p-button-danger p-button-text",
-      rejectButtonStyleClass: "p-button-text p-button-text",
-      acceptIcon: "none",
-      rejectIcon: "none",
-      acceptLabel: "Sim",
-      rejectLabel: "Não",
+      acceptButtonStyleClass: 'p-button-danger p-button-text',
+      rejectButtonStyleClass: 'p-button-text p-button-text',
+      acceptIcon: 'none',
+      rejectIcon: 'none',
+      acceptLabel: 'Sim',
+      rejectLabel: 'Não',
       accept: () => {
-        // NO FUTUTO ALTERAR PARA UM CODE QUE SERIA O ID CODIFICADO..
-        this.inativarUsuario(produtc.id);
-      },
-      reject: () => {
-        console.log('Usuário cancelou');
+        this.inativarProduto(produto.id);
       }
     });
   }
 
-
-  fechar() {
-    this.visivel = !this.visivel;
+  abrirImportacao(): void {
+    this.fileInput.nativeElement.click();
   }
 
+  onArquivoSelecionado(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const arquivo = input.files?.[0];
 
+    if (!arquivo) {
+      return;
+    }
 
-  //  CRUD : TRANSFERIR PARA UM SERVICE DEPOIS
-
-  criarUsuario(novoUsuario: ProdutoDTO): void {
-    this.apiService.post<ServiceResponse<ProdutoDTO>>('usuario', novoUsuario)
+    this.importando = true;
+    this.produtoService.importarProdutos(arquivo)
       .subscribe({
         next: (dados) => {
-          console.log(dados, "DADOS")
-          if(dados.success == false){
-              this.message.showError("Falha ao criar o usuário");
-              this.message.showError(dados.mensagem);
-              this.fechar();
+          this.importando = false;
+          if (!dados.success) {
+            this.appMessageService.showError(dados.mensagem || 'Falha ao importar produtos.');
           }
-          else{
-          this.message.showSuccess("Usuário criado com sucesso");
+          else {
+            this.appMessageService.showSuccess(dados.mensagem || 'Importação concluída.');
+            this.obterProdutos();
+          }
+          input.value = '';
+        },
+        error: () => {
+          this.importando = false;
+          input.value = '';
+          this.appMessageService.showError('Erro ao importar produtos.');
+        }
+      });
+  }
+
+  baixarTemplateImportacao(): void {
+    this.produtoService.baixarTemplateImportacao().subscribe({
+      next: (arquivo) => {
+        const blobUrl = window.URL.createObjectURL(arquivo);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = 'template_importacao_produtos.xlsx';
+        link.click();
+        window.URL.revokeObjectURL(blobUrl);
+      },
+      error: () => {
+        this.appMessageService.showError('Erro ao baixar template de importação.');
+      }
+    });
+  }
+
+  fechar(): void {
+    this.visivel = false;
+  }
+
+  private criarProduto(novoProduto: ProdutoRequest): void {
+    this.produtoService.cadastrarProduto(novoProduto)
+      .subscribe({
+        next: (dados) => {
+          if (!dados.success) {
+            this.appMessageService.showError(dados.mensagem || 'Falha ao cadastrar produto.');
+            return;
+          }
+
+          this.appMessageService.showSuccess(dados.mensagem || 'Produto cadastrado com sucesso.');
           this.fechar();
-          this.obterUsuarios();
+          this.obterProdutos();
+        },
+        error: () => {
+          this.appMessageService.showError('Erro ao cadastrar produto.');
+        }
+      });
+  }
+
+  private obterProdutos(): void {
+    this.produtoService.listarProdutos()
+      .subscribe({
+        next: (dados) => {
+          this.listaProdutos = dados.dados || [];
+        },
+        error: () => {
+          this.appMessageService.showError('Erro ao buscar produtos.');
+        }
+      });
+  }
+
+  private atualizarProduto(produto: ProdutoDTO): void {
+    this.produtoService.atualizarProduto(produto)
+      .subscribe({
+        next: (dados) => {
+          if (!dados.success) {
+            this.appMessageService.showError(dados.mensagem || 'Falha ao atualizar produto.');
+            return;
           }
-        },
-        error: () => {
-          this.message.showError("Erro ao criar usuário");
-        }
-      });
-  }
 
-
-  obterUsuarios() {
-    this.apiService.get<ProdutoDTO[]>('usuario')
-      .subscribe({
-        next: (data) => {
-          this.listaProdutos = data.dados;
-        },
-        error: () => {
-          this.message.showError("Erro ao buscar usuários");
-        }
-      });
-  }
-
-
-  atualizarUsuario(usuario: ProdutoDTO): void {
-    this.apiService.put<ProdutoDTO>(`usuario`, usuario)
-      .subscribe({
-        next: (dad) => {
-          this.message.showSuccess("Usuário atualizado");
-          this.obterUsuarios();
+          this.appMessageService.showSuccess(dados.mensagem || 'Produto atualizado com sucesso.');
           this.fechar();
+          this.obterProdutos();
         },
         error: () => {
-          this.message.showError("Erro ao atualizar usuário");
+          this.appMessageService.showError('Erro ao atualizar produto.');
         }
       });
   }
 
-  inativarUsuario(id: number): void {
-    this.apiService.delete<ServiceResponse<ProdutoDTO>>(`usuario/${id}`)
+  private inativarProduto(id: string): void {
+    this.produtoService.excluirProduto(id)
       .subscribe({
-      next: (dados) => {
-          if(dados.success == false){
-              this.message.showError("Falha ao inativar usuário");
-              this.message.showError(dados.mensagem);
+        next: (dados) => {
+          if (!dados.success) {
+            this.appMessageService.showError(dados.mensagem || 'Falha ao excluir produto.');
+            return;
           }
-          if(dados.success == true){
-          this.message.showSuccess("Usuário Excluido com sucesso");
-          this.obterUsuarios();
-          }
+
+          this.appMessageService.showSuccess(dados.mensagem || 'Produto excluído com sucesso.');
+          this.obterProdutos();
         },
         error: () => {
-          this.message.showError("Erro geral");
+          this.appMessageService.showError('Erro ao excluir produto.');
         }
       });
   }

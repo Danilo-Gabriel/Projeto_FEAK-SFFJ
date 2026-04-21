@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text.Json.Serialization;
 using DomainService.Entities;
 
 namespace DomainService.DTOs;
@@ -13,6 +14,7 @@ public class UsuarioDTO
 
     public string NomeLogin { get; set; }
 
+    [JsonIgnore]
     public string Senha { get; set; }
     
     public int Idade { get; set; }

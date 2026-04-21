@@ -1,0 +1,151 @@
+<p-toast />
+
+<section class="pdv-page">
+  <div class="pdv-header">
+    <div>
+      <span class="eyebrow">Vendas > PDV > Digitação</span>
+      <h1>PDV</h1>
+      <p>Selecione produtos importados do estoque e monte a lista de itens no formato clássico de caixa.</p>
+    </div>
+
+    <div class="pdv-status">
+      <span>Total atual</span>
+      <strong>{{ totalVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+    </div>
+  </div>
+
+  <div class="pdv-shell">
+    <article class="pdv-editor" [formGroup]="pdvForm">
+      <div class="consumidor-box">
+        <i class="pi pi-user"></i>
+        <span>{{ pdvForm.get('consumidor')?.value }} (Clique aqui para identificar ou utilize a tecla F2)</span>
+      </div>
+
+      <div class="form-row form-row-full">
+        <label for="codigoBarras">CÓDIGO BARRAS</label>
+        <input id="codigoBarras" pInputText formControlName="codigoBarras" placeholder="Leia ou informe o código de barras" (keyup.enter)="pesquisarPorCodigoBarras()" (blur)="pesquisarPorCodigoBarras()" />
+      </div>
+
+      <div class="form-row form-row-full">
+        <label for="buscaProduto">PRODUTO</label>
+        <input id="buscaProduto" pInputText formControlName="buscaProduto" placeholder="Filtre para localizar na lista importada" />
+        <select class="produto-select" formControlName="produtoId" (change)="onProdutoSelecionado($any($event.target).value)">
+          <option value="">Selecione</option>
+          <option *ngFor="let produto of produtoOptions" [value]="produto.id">
+            {{ produto.codigoBarras }} - {{ produto.descricao }} - Estoque: {{ produto.estoqueAtual }} - {{ produto.precoVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+          </option>
+        </select>
+      </div>
+
+      <div class="toggle-grid">
+        <div class="toggle-card" [class.active]="pdvForm.get('inclusaoAutomatica')?.value">
+          <span>INCLUSÃO AUT.</span>
+          <button type="button" (click)="pdvForm.patchValue({ inclusaoAutomatica: !pdvForm.get('inclusaoAutomatica')?.value })">
+            {{ pdvForm.get('inclusaoAutomatica')?.value ? 'Habilitado' : 'Desabilitado' }}
+          </button>
+        </div>
+
+        <div class="toggle-card" [class.active]="pdvForm.get('exclusaoAutomatica')?.value">
+          <span>EXCLUSÃO AUT.</span>
+          <button type="button" (click)="pdvForm.patchValue({ exclusaoAutomatica: !pdvForm.get('exclusaoAutomatica')?.value })">
+            {{ pdvForm.get('exclusaoAutomatica')?.value ? 'Habilitado' : 'Desabilitado' }}
+          </button>
+        </div>
+
+        <div class="toggle-card" [class.active]="pdvForm.get('buscaReferencia')?.value">
+          <span>BUSCA REF.</span>
+          <button type="button" (click)="pdvForm.patchValue({ buscaReferencia: !pdvForm.get('buscaReferencia')?.value })">
+            {{ pdvForm.get('buscaReferencia')?.value ? 'Habilitado' : 'Desabilitado' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-field">
+          <label for="quantidade">QUANTIDADE</label>
+          <input id="quantidade" pInputText type="number" min="1" step="1" formControlName="quantidade" />
+        </div>
+
+        <div class="metric-field">
+          <label for="valorUnitario">VLR UNITÁRIO</label>
+          <input id="valorUnitario" pInputText type="number" min="0" step="0.01" formControlName="valorUnitario" />
+        </div>
+
+        <div class="metric-field">
+          <label for="descontoValor">DESCONTO</label>
+          <input id="descontoValor" pInputText type="number" min="0" step="0.01" formControlName="descontoValor" />
+        </div>
+
+        <div class="metric-field">
+          <label for="descontoPercentual">% DESCONTO</label>
+          <input id="descontoPercentual" pInputText type="number" min="0" step="0.01" formControlName="descontoPercentual" />
+        </div>
+
+        <div class="metric-field total-highlight">
+          <label>VALOR TOTAL</label>
+          <strong>{{ totalItemDigitado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+        </div>
+      </div>
+
+      <div class="editor-actions">
+        <button pButton type="button" label="Adicionar" icon="pi pi-plus" severity="info" (click)="adicionarItem()"></button>
+        <button pButton type="button" label="Cancelar" icon="pi pi-times-circle" severity="secondary" (click)="cancelarDigitacao()"></button>
+        <button pButton type="button" label="Finalizar venda" icon="pi pi-check" severity="success" [loading]="salvandoVenda" (click)="finalizarVenda()"></button>
+      </div>
+    </article>
+
+    <article class="pdv-lista">
+      <div class="lista-header">
+        <div>
+          <h2>LISTAGEM DOS ITENS</h2>
+          <p>Seleção baseada nos produtos importados e gerenciados na tela de estoque.</p>
+        </div>
+        <span class="lista-shortcut">ALT+R: excluir último registro</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="itens-table">
+          <thead>
+            <tr>
+              <th>Ações</th>
+              <th>Item</th>
+              <th>Código</th>
+              <th>Descrição</th>
+              <th>Qtde</th>
+              <th>Preço</th>
+              <th>Desc.</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="itensVenda.length === 0">
+              <td colspan="8" class="empty-row">Nenhum item informado</td>
+            </tr>
+            <tr *ngFor="let item of itensVenda; let indice = index">
+              <td>
+                <button type="button" class="icon-action" (click)="removerItem(item.id)">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </td>
+              <td>{{ indice + 1 }}</td>
+              <td>{{ item.codigo }}</td>
+              <td>{{ item.descricao }}</td>
+              <td>{{ item.quantidade }}</td>
+              <td>{{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+              <td>{{ ((item.descontoValor ?? 0) + ((item.precoUnitario * item.quantidade) * ((item.descontoPercentual ?? 0) / 100))) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+              <td>{{ obterSubtotalItem(item) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="totais-footer">
+        <span><strong>Qtde:</strong> {{ quantidadeTotal }}</span>
+        <span><strong>Subtotal:</strong> {{ subtotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span><strong>Acrésc.:</strong> {{ acrescimo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span><strong>Desc.:</strong> {{ descontoTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span class="total-valor"><strong>Total:</strong> {{ totalVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+      </div>
+    </article>
+  </div>
+</section>

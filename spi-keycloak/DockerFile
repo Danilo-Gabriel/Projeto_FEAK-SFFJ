@@ -1,0 +1,13 @@
+# --- Builder stage ---
+FROM quay.io/keycloak/keycloak:22.0.5 AS builder
+
+
+
+WORKDIR /opt/keycloak
+
+
+COPY themes /opt/keycloak/themes
+
+# Copiar os drivers JDBC já presentes'drivers'
+COPY custom-user-federation/src/main/java/com/example/keycloak/services/drivers/*.jar /opt/keycloak/providers
+

@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { LibsModule } from '../../assets/libs/libs.module';
 import { UsuarioComponent } from './usuario/usuario.component';
 import { ProdutoComponent } from './produto/produto.component';
+import { PdvComponent } from './pdv/pdv.component';
 import { PagesRoutingModule } from '../routing/pages-routing.module';
 
 @NgModule({
@@ -12,6 +13,7 @@ import { PagesRoutingModule } from '../routing/pages-routing.module';
   declarations: [
     UsuarioComponent,
     ProdutoComponent,
+    PdvComponent,
   ],
   imports: [
     CommonModule,

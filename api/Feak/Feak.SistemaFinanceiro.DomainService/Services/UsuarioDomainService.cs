@@ -27,7 +27,7 @@ public class UsuarioDomainService : BaseDomainService<Usuario>, IUsuarioDomainSe
     //     return await _repository.UpdateAsync(entity);
     // }
 
-    public async Task<ServiceResponse<UsuarioDTO>> AtualizarUsuario(UsuarioDTO dados)
+    public async Task<ServiceResponse<UsuarioDTO>> AtualizarUsuario(UsuarioAtualizacaoRequest dados)
     {
         var serviceResponse = new ServiceResponse<UsuarioDTO>();
 
@@ -49,13 +49,16 @@ public class UsuarioDomainService : BaseDomainService<Usuario>, IUsuarioDomainSe
                 return serviceResponse;
             }
             
-            var exist = _usuarioRepository.GetByNomeLoginAsync(dados.NomeLogin);
-            
-            if(exist != null)
+            var usuarioMesmoLogin = await _usuarioRepository.GetByNomeLoginAsync(dados.NomeLogin);
+            if (usuarioMesmoLogin != null && usuarioMesmoLogin.Id != dados.Id)
+            {
+                serviceResponse.Mensagem = "Já existe um usuário com o nome de login informado.";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
 
             usuario.NomeCompleto = dados.NomeCompleto;
             usuario.NomeLogin = dados.NomeLogin;
-            //usuario.Ativo = dados.Ativo;
 
             serviceResponse.Dados = (await _usuarioRepository.AtualizarUsuario(usuario)).toDTO();
             serviceResponse.Success = true;
@@ -148,6 +151,14 @@ public class UsuarioDomainService : BaseDomainService<Usuario>, IUsuarioDomainSe
         ServiceResponse<UsuarioDTO> serviceResponse = new ServiceResponse<UsuarioDTO>();
         try
         {
+            var usuarioMesmoLogin = await _usuarioRepository.GetByNomeLoginAsync(dados.NomeLogin);
+            if (usuarioMesmoLogin != null)
+            {
+                serviceResponse.Mensagem = "Já existe um usuário com o nome de login informado.";
+                serviceResponse.Success = false;
+                return serviceResponse;
+            }
+
             dados.Senha = _passwordHasher.HashPassword(null, dados.Senha);
             serviceResponse.Dados = (await _usuarioRepository.CadastrarUsuario(dados.ToEntity())).toDTO();
              

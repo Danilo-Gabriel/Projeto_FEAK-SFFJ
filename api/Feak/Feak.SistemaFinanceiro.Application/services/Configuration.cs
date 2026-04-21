@@ -68,10 +68,14 @@ public static class Configuration
         // Domain services
         services.AddTransient(typeof(IBaseDomainService<>),  typeof(BaseDomainService<>));
         services.AddTransient<IUsuarioDomainService, UsuarioDomainService>();
+        services.AddTransient<IProdutoDomainService, ProdutoDomainService>();
+        services.AddTransient<IVendaDomainService, VendaDomainService>();
         
         // Repository
         services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+        services.AddTransient<IProdutoRepository, ProdutoRepository>();
+        services.AddTransient<IVendaRepository, VendaRepository>();
     }
     
     

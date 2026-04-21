@@ -65,13 +65,16 @@ public class UsuariosController : ControllerBase
     }
     
     [HttpPut]
-    public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> AtualizarUsuario([FromBody] UsuarioDTO request)
+    public async Task<ActionResult<ServiceResponse<UsuarioDTO>>> AtualizarUsuario([FromBody] UsuarioAtualizacaoRequest request)
     {
+        if(!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         return Ok(await _usuarioDomainService.AtualizarUsuario(request));
     }
 
     [HttpGet]
-    [Authorize]
+    //[Authorize]
     public async Task<ActionResult<ServiceResponse<List<UsuarioDTO>>>> ObterUsuarios()
     {
         var email = _securityContext.GetEmail();

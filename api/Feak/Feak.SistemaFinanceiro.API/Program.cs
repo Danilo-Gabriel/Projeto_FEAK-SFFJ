@@ -1,4 +1,5 @@
 using Application.services;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // Angular
+        policy.SetIsOriginAllowed(origin =>
+            Uri.TryCreate(origin, UriKind.Absolute, out var uri)
+            && (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+                || uri.Host.Equals("127.0.0.1")))
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -18,6 +22,14 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = HttpLoggingFields.RequestMethod
+        | HttpLoggingFields.RequestPath
+        | HttpLoggingFields.RequestQuery
+        | HttpLoggingFields.ResponseStatusCode
+        | HttpLoggingFields.Duration;
+});
 
 builder.WebHost.UseUrls("http://localhost:7000");
 
@@ -65,6 +77,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "FEAK"));
 }
 
+app.UseHttpLogging();
 app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
