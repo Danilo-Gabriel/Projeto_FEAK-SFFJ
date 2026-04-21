@@ -1,0 +1,37 @@
+<div class="dashboard-page">
+  <div class="dashboard-topbar">
+    <div>
+      <span class="eyebrow">Painel gerencial</span>
+      <h1>Dashboard de faturamento</h1>
+      <p>Acompanhe o desempenho das vendas no período selecionado.</p>
+    </div>
+
+    <div class="usuario-logado-card">
+      <div class="usuario-avatar">{{ obterIniciaisUsuario() }}</div>
+      <div>
+        <span class="usuario-caption">Usuário logado</span>
+        <strong>{{ obterNomeUsuario() }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="filtro-card">
+    <label>
+      <span>Data inicial</span>
+      <input type="date" [(ngModel)]="dataInicial" />
+    </label>
+
+    <label>
+      <span>Data final</span>
+      <input type="date" [(ngModel)]="dataFinal" />
+    </label>
+
+    <button pButton type="button" label="Pesquisar" icon="pi pi-search" (click)="pesquisar()"></button>
+  </div>
+
+  <article class="metrica-card faturamento faturamento-destaque">
+    <span class="titulo">Faturamento</span>
+    <strong>{{ faturamento | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+    <small>Valor total das vendas fechadas dentro do período informado.</small>
+  </article>
+</div>

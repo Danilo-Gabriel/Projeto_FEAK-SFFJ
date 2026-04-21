@@ -1,7 +1,7 @@
-using ClosedXML.Excel;
 using DomainService.DTOs;
 using DomainService.DTOs.Request;
 using DomainService.Entities;
+using Feak.SistemaFinanceiro.DomainService.Helpers;
 using DomainService.Interfaces;
 using DomainService.Interfaces.Services;
 
@@ -24,93 +24,16 @@ public class VendaDomainService : BaseDomainService<Venda>, IVendaDomainService
         var vendasFechadas = vendas
             .Where(x => x.DhExclusao == null && !x.Cancelada)
             .OrderByDescending(x => x.DhInclusao)
-            .ToList();
-
-        using var workbook = new XLWorkbook();
-
-        var resumoWorksheet = workbook.Worksheets.Add("Resumo Produtos");
-        resumoWorksheet.Cell(1, 1).Value = "Codigo Produto";
-        resumoWorksheet.Cell(1, 2).Value = "Descricao Produto";
-        resumoWorksheet.Cell(1, 3).Value = "Quantidade Vendida";
-        resumoWorksheet.Cell(1, 4).Value = "Valor Total Vendido";
-        resumoWorksheet.Cell(1, 5).Value = "Qtde Vendas";
-
-        var resumoProdutos = vendasFechadas
-            .SelectMany(venda => venda.Itens)
-            .GroupBy(item => new { item.ProdutoId, item.CodigoProduto, item.DescricaoProduto })
-            .Select(group => new
+            .Select(x => new RelatorioVendaExcelDTO
             {
-                group.Key.CodigoProduto,
-                group.Key.DescricaoProduto,
-                QuantidadeVendida = group.Sum(x => x.Quantidade),
-                ValorTotalVendido = group.Sum(x => x.TotalItem),
-                QuantidadeVendas = group.Select(x => x.VendaId).Distinct().Count()
+                Operador = x.Operador,
+                DataVenda = x.DhInclusao.ToLocalTime(),
+                Desconto = x.DescontoTotal,
+                ValorTotal = x.Total
             })
-            .OrderByDescending(x => x.QuantidadeVendida)
-            .ThenBy(x => x.DescricaoProduto)
             .ToList();
 
-        for (var linha = 0; linha < resumoProdutos.Count; linha++)
-        {
-            var item = resumoProdutos[linha];
-            resumoWorksheet.Cell(linha + 2, 1).Value = item.CodigoProduto;
-            resumoWorksheet.Cell(linha + 2, 2).Value = item.DescricaoProduto;
-            resumoWorksheet.Cell(linha + 2, 3).Value = item.QuantidadeVendida;
-            resumoWorksheet.Cell(linha + 2, 4).Value = item.ValorTotalVendido;
-            resumoWorksheet.Cell(linha + 2, 5).Value = item.QuantidadeVendas;
-        }
-
-        var vendasWorksheet = workbook.Worksheets.Add("Detalhe Vendas");
-        vendasWorksheet.Cell(1, 1).Value = "Venda";
-        vendasWorksheet.Cell(1, 2).Value = "Data";
-        vendasWorksheet.Cell(1, 3).Value = "Operador";
-        vendasWorksheet.Cell(1, 4).Value = "Consumidor";
-        vendasWorksheet.Cell(1, 5).Value = "Pagamento";
-        vendasWorksheet.Cell(1, 6).Value = "Codigo Produto";
-        vendasWorksheet.Cell(1, 7).Value = "Descricao Produto";
-        vendasWorksheet.Cell(1, 8).Value = "Quantidade";
-        vendasWorksheet.Cell(1, 9).Value = "Preco Unitario";
-        vendasWorksheet.Cell(1, 10).Value = "Desconto";
-        vendasWorksheet.Cell(1, 11).Value = "Total Item";
-
-        var linhaDetalhe = 2;
-        foreach (var venda in vendasFechadas)
-        {
-            foreach (var item in venda.Itens)
-            {
-                vendasWorksheet.Cell(linhaDetalhe, 1).Value = venda.NumeroVenda;
-                vendasWorksheet.Cell(linhaDetalhe, 2).Value = venda.DhInclusao.ToLocalTime();
-                vendasWorksheet.Cell(linhaDetalhe, 3).Value = venda.Operador;
-                vendasWorksheet.Cell(linhaDetalhe, 4).Value = venda.Consumidor;
-                vendasWorksheet.Cell(linhaDetalhe, 5).Value = venda.FormaPagamento;
-                vendasWorksheet.Cell(linhaDetalhe, 6).Value = item.CodigoProduto;
-                vendasWorksheet.Cell(linhaDetalhe, 7).Value = item.DescricaoProduto;
-                vendasWorksheet.Cell(linhaDetalhe, 8).Value = item.Quantidade;
-                vendasWorksheet.Cell(linhaDetalhe, 9).Value = item.PrecoUnitario;
-                vendasWorksheet.Cell(linhaDetalhe, 10).Value = item.DescontoValor;
-                vendasWorksheet.Cell(linhaDetalhe, 11).Value = item.TotalItem;
-                linhaDetalhe++;
-            }
-        }
-
-        foreach (var worksheet in workbook.Worksheets)
-        {
-            var headerRange = worksheet.Range(1, 1, 1, worksheet.LastColumnUsed()?.ColumnNumber() ?? 1);
-            headerRange.Style.Font.Bold = true;
-            headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#DCEFE7");
-            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-            worksheet.Columns().AdjustToContents();
-        }
-
-        resumoWorksheet.Column(4).Style.NumberFormat.Format = "R$ #,##0.00";
-        vendasWorksheet.Column(2).Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
-        vendasWorksheet.Column(9).Style.NumberFormat.Format = "R$ #,##0.00";
-        vendasWorksheet.Column(10).Style.NumberFormat.Format = "R$ #,##0.00";
-        vendasWorksheet.Column(11).Style.NumberFormat.Format = "R$ #,##0.00";
-
-        using var stream = new MemoryStream();
-        workbook.SaveAs(stream);
-        return stream.ToArray();
+        return ExcelHelper<RelatorioVendaExcelDTO>.ExportarExcel(vendasFechadas, "Relatorio Vendas");
     }
 
     public async Task<ServiceResponse<List<VendaDTO>>> ListarVendas()

@@ -20,16 +20,26 @@ namespace Feak.SistemaFinanceiro.DomainService.Helpers
             worksheet.Range("A1:A2").Style.Font.Bold = true;
             worksheet.Range("A1:B2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
 
-            var propriedades = typeof(T).GetProperties();
+            var propriedades = typeof(T)
+                .GetProperties()
+                .Select((property, index) => new
+                {
+                    Property = property,
+                    Index = index,
+                    Display = property.GetCustomAttribute<DisplayAttribute>(),
+                    DisplayFormat = property.GetCustomAttribute<DisplayFormatAttribute>()
+                })
+                .OrderBy(x => x.Display?.GetOrder() ?? int.MaxValue)
+                .ThenBy(x => x.Index)
+                .ToList();
 
             int linhaCabecalho = 3;
-            for (int i = 0; i < propriedades.Length; i++)
+            for (int i = 0; i < propriedades.Count; i++)
             {
-                var displayAttr = propriedades[i].GetCustomAttribute<DisplayAttribute>();
-                worksheet.Cell(linhaCabecalho, i + 1).Value = displayAttr?.Name ?? propriedades[i].Name;
+                worksheet.Cell(linhaCabecalho, i + 1).Value = propriedades[i].Display?.Name ?? propriedades[i].Property.Name;
             }
             
-            var cabecalho = worksheet.Range(linhaCabecalho, 1, linhaCabecalho, propriedades.Length);
+            var cabecalho = worksheet.Range(linhaCabecalho, 1, linhaCabecalho, propriedades.Count);
             cabecalho.Style.Font.Bold = true;
             cabecalho.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             cabecalho.Style.Fill.BackgroundColor = XLColor.LightGray;
@@ -37,10 +47,18 @@ namespace Feak.SistemaFinanceiro.DomainService.Helpers
             int row = linhaCabecalho + 1;
             foreach (var item in dados)
             {
-                for (int col = 0; col < propriedades.Length; col++)
+                for (int col = 0; col < propriedades.Count; col++)
                 {
-                    var valor = propriedades[col].GetValue(item);
-                    worksheet.Cell(row, col + 1).SetValue(valor?.ToString() ?? string.Empty);
+                    var configuracaoColuna = propriedades[col];
+                    var valor = configuracaoColuna.Property.GetValue(item);
+                    var cell = worksheet.Cell(row, col + 1);
+
+                    DefinirValorCelula(cell, valor);
+
+                    if (!string.IsNullOrWhiteSpace(configuracaoColuna.DisplayFormat?.DataFormatString))
+                    {
+                        cell.Style.NumberFormat.Format = configuracaoColuna.DisplayFormat.DataFormatString;
+                    }
                 }
                 row++;
             }
@@ -51,6 +69,49 @@ namespace Feak.SistemaFinanceiro.DomainService.Helpers
             workbook.SaveAs(stream);
             stream.Position = 0;
             return stream.ToArray();
+        }
+
+        private static void DefinirValorCelula(IXLCell cell, object? valor)
+        {
+            if (valor == null)
+            {
+                cell.Value = string.Empty;
+                return;
+            }
+
+            switch (valor)
+            {
+                case DateTime dateTime:
+                    cell.Value = dateTime;
+                    break;
+                case DateTimeOffset dateTimeOffset:
+                    cell.Value = dateTimeOffset.DateTime;
+                    break;
+                case decimal decimalValue:
+                    cell.Value = decimalValue;
+                    break;
+                case double doubleValue:
+                    cell.Value = doubleValue;
+                    break;
+                case float floatValue:
+                    cell.Value = floatValue;
+                    break;
+                case int intValue:
+                    cell.Value = intValue;
+                    break;
+                case long longValue:
+                    cell.Value = longValue;
+                    break;
+                case short shortValue:
+                    cell.Value = shortValue;
+                    break;
+                case bool boolValue:
+                    cell.Value = boolValue;
+                    break;
+                default:
+                    cell.Value = valor.ToString();
+                    break;
+            }
         }
     }
 }
