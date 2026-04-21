@@ -28,13 +28,30 @@
 
       <div class="form-row form-row-full">
         <label for="buscaProduto">PRODUTO</label>
-        <input id="buscaProduto" pInputText formControlName="buscaProduto" placeholder="Filtre para localizar na lista importada" />
-        <select class="produto-select" formControlName="produtoId" (change)="onProdutoSelecionado($any($event.target).value)">
-          <option value="">Selecione</option>
-          <option *ngFor="let produto of produtoOptions" [value]="produto.id">
-            {{ produto.codigoBarras }} - {{ produto.descricao }} - Estoque: {{ produto.estoqueAtual }} - {{ produto.precoVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-          </option>
-        </select>
+        <p-dropdown
+          inputId="buscaProduto"
+          styleClass="produto-dropdown"
+          formControlName="produtoId"
+          [options]="produtos"
+          optionLabel="descricao"
+          optionValue="id"
+          [filter]="true"
+          filterBy="codigoBarras,descricao,id"
+          filterPlaceholder="Filtrar produto"
+          [showClear]="true"
+          placeholder="Selecione"
+          (onChange)="onProdutoSelecionado($any($event).value)">
+          <ng-template let-produto pTemplate="item">
+            <div class="produto-option">
+              <span class="produto-option__descricao">{{ produto.descricao }}</span>
+              <small>{{ produto.codigoBarras }} | Estoque: {{ produto.estoqueAtual }} | {{ produto.precoVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</small>
+            </div>
+          </ng-template>
+          <ng-template let-produto pTemplate="selectedItem">
+            <span *ngIf="produto">{{ produto.codigoBarras }} - {{ produto.descricao }}</span>
+            <span *ngIf="!produto">Selecione</span>
+          </ng-template>
+        </p-dropdown>
       </div>
 
       <div class="toggle-grid">
@@ -132,7 +149,7 @@
               <td>{{ item.descricao }}</td>
               <td>{{ item.quantidade }}</td>
               <td>{{ item.precoUnitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
-              <td>{{ ((item.descontoValor ?? 0) + ((item.precoUnitario * item.quantidade) * ((item.descontoPercentual ?? 0) / 100))) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+              <td>{{ (item.descontoValor ?? 0) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
               <td>{{ obterSubtotalItem(item) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
             </tr>
           </tbody>

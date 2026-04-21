@@ -1,13 +1,16 @@
 export interface VendaDTO {
   id: string;
   numeroVenda: string;
+  operador: string;
   consumidor: string;
   formaPagamento: string;
   subtotal: number;
   descontoTotal: number;
   acrescimo: number;
   total: number;
+  cancelada: boolean;
   dhInclusao: Date;
+  dhCancelamento: Date | null;
   itens: VendaItemDTO[];
 }
 

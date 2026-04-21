@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Security.Claims;
 using DomainService.Interfaces;
 using DomainService.Interfaces.Services;
 using DomainService.services;
@@ -47,12 +48,15 @@ public static class Configuration
                 options.Authority = $"{keycloakConfig.KeycloakBaseUrl}";
                 options.Audience = $"{keycloakConfig.KeycloakClientId}"; 
                 options.RequireHttpsMetadata = false;
+                options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = false,
                     ValidateIssuer = true,
                     ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true
+                    ValidateIssuerSigningKey = true,
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = ClaimTypes.Role
                 };
             });
     }

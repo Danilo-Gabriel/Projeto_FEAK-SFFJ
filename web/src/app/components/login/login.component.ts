@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { environment } from '../../../environment/environment';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LoginDTO } from '../../models/dto/login-dto';
+import { UsuarioDTO } from '../../models/dto/user-dto';
 import { ServiceResponse } from '../../models/response/service-response';
 import { catchError, Observable, throwError } from 'rxjs';
 import { AppMessageService } from '../../shared/services/app-message.service';
+import { AuthSessionService } from '../../core/services/auth-session.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +18,7 @@ import { AppMessageService } from '../../shared/services/app-message.service';
 export class LoginComponent implements OnInit{
 
   public formLogin!: FormGroup;
+  private readonly authSessionService = inject(AuthSessionService);
 
   constructor(public formBuilder: FormBuilder,
     private router : Router,
@@ -47,13 +50,16 @@ export class LoginComponent implements OnInit{
 
 
   login(record: LoginDTO): void {
-    this.http.post<ServiceResponse<LoginDTO>>(`${environment.endPoint}/login`, record, { responseType: 'json' }).pipe(
+    this.http.post<ServiceResponse<UsuarioDTO>>(`${environment.endPoint}/login`, record, { responseType: 'json' }).pipe(
     catchError((error) => {
       return throwError(() => error);
     })
   ).subscribe({
         next: (res) => {
           console.log('Login OK:', res);
+          if (res.dados) {
+            this.authSessionService.salvarUsuario(res.dados);
+          }
           this.message.showSuccess("")
           this.router.navigate(['pages'])
         },

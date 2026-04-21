@@ -1,6 +1,8 @@
 .produto-page {
-	min-height: 100vh;
+	min-height: 100%;
 	padding: 24px;
+	display: flex;
+	flex-direction: column;
 	background:
 		radial-gradient(circle at top right, rgba(13, 107, 82, 0.16), transparent 24%),
 		linear-gradient(180deg, #f7faf8 0%, #edf4ef 100%);
@@ -46,11 +48,23 @@
 }
 
 .produto-table-card {
+	flex: 1;
+	min-height: 0;
 	padding: 18px;
 	border-radius: 22px;
 	background: rgba(255, 255, 255, 0.84);
 	border: 1px solid rgba(23, 50, 40, 0.08);
 	box-shadow: 0 18px 40px rgba(23, 50, 40, 0.08);
+	overflow: hidden;
+}
+
+:host ::ng-deep .produto-table-card .p-datatable {
+	display: flex;
+	flex-direction: column;
+}
+
+:host ::ng-deep .produto-table-card .p-datatable-wrapper {
+	flex: 1;
 }
 
 .table-caption {

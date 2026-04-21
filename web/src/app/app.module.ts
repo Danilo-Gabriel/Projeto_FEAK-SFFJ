@@ -47,13 +47,13 @@ export function initializeKeycloak(keycloakInit: KeycloakInitService) {
       provide: DEFAULT_CURRENCY_CODE,
       useValue: 'BRL'
     },
-    // KeycloakInitService,
-    // {
-    //   provide: APP_INITIALIZER,
-    //   useFactory: initializeKeycloak,
-    //   deps: [KeycloakInitService],
-    //   multi: true
-    // },
+    KeycloakInitService,
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeKeycloak,
+      deps: [KeycloakInitService],
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: CustomKeycloakInterceptor,

@@ -18,8 +18,14 @@ export class CustomKeycloakInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
 
+  return from(Promise.resolve(this.keycloak.isLoggedIn())).pipe(
+      switchMap((autenticado) => {
+        if (!autenticado) {
+          return of(null);
+        }
 
-  return from(this.keycloak.getToken()).pipe(
+        return from(this.keycloak.getToken().catch(() => null));
+      }),
       switchMap((token : string | null) => {
 
         if (token) {

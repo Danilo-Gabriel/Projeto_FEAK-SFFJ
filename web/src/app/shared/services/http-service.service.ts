@@ -54,4 +54,14 @@ export class HttpServiceService {
       );
   }
 
+  getBlob(url: string): Observable<Blob> {
+    return this.http.get(`${environment.endPoint}/${url}`, { responseType: 'blob' })
+      .pipe(
+        catchError(error => {
+          console.error(`Erro ao executar GET blob em ${url}`, error);
+          return throwError(() => error);
+        })
+      );
+  }
+
 }

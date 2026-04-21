@@ -1,0 +1,95 @@
+<p-toast />
+<p-confirmDialog />
+
+<section class="relatorio-page">
+  <div class="relatorio-header">
+    <div>
+      <span class="eyebrow">Movimento de caixa</span>
+      <h1>Relatório de vendas</h1>
+      <p>Acompanhe vendas fechadas, operador responsável e cancele vendas com devolução automática ao estoque.</p>
+    </div>
+
+    <p-button
+      label="Exportar Excel"
+      icon="pi pi-file-excel"
+      severity="success"
+      [loading]="exportandoExcel"
+      (onClick)="exportarExcel()" />
+  </div>
+
+  <div class="relatorio-table-card">
+    <p-table
+      #dt1
+      [value]="vendas"
+      [loading]="carregando"
+      [scrollable]="true"
+      [globalFilterFields]="['numeroVenda', 'operador', 'consumidor', 'formaPagamento']"
+      scrollHeight="calc(100vh - 280px)"
+      [tableStyle]="{ 'min-width': '75rem' }"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [currentPageReportTemplate]="'Exibindo {first} a {last} de {totalRecords} registros'"
+      [paginator]="true">
+      <ng-template pTemplate="caption">
+        <div class="table-caption">
+          <p-iconField iconPosition="left">
+            <p-inputIcon>
+              <i class="pi pi-search"></i>
+            </p-inputIcon>
+            <input pInputText type="text" (input)="dt1.filterGlobal($any($event.target).value, 'contains')" placeholder="Buscar venda" />
+          </p-iconField>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="numeroVenda">Venda <p-sortIcon field="numeroVenda" /></th>
+          <th pSortableColumn="operador">Operador <p-sortIcon field="operador" /></th>
+          <th pSortableColumn="consumidor">Consumidor <p-sortIcon field="consumidor" /></th>
+          <th>Itens</th>
+          <th pSortableColumn="formaPagamento">Pagamento <p-sortIcon field="formaPagamento" /></th>
+          <th pSortableColumn="total">Total <p-sortIcon field="total" /></th>
+          <th pSortableColumn="dhInclusao">Fechamento <p-sortIcon field="dhInclusao" /></th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-venda>
+        <tr>
+          <td>{{ venda.numeroVenda }}</td>
+          <td>{{ venda.operador }}</td>
+          <td>{{ venda.consumidor }}</td>
+          <td>{{ obterQuantidadeItens(venda) }}</td>
+          <td>{{ venda.formaPagamento }}</td>
+          <td>{{ venda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+          <td>{{ venda.dhInclusao | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td>
+            <span class="status-pill" [class.cancelada]="venda.cancelada">
+              {{ venda.cancelada ? 'Cancelada' : 'Fechada' }}
+            </span>
+            <small *ngIf="venda.cancelada && venda.dhCancelamento" class="cancelamento-data">
+              {{ venda.dhCancelamento | date:'dd/MM/yyyy HH:mm' }}
+            </small>
+          </td>
+          <td class="row-actions">
+            <p-button
+              label="Cancelar"
+              icon="pi pi-times"
+              severity="danger"
+              [outlined]="true"
+              [disabled]="venda.cancelada"
+              [loading]="cancelandoVendaId === venda.id"
+              (onClick)="confirmarCancelamento(venda)" />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9">Nenhuma venda encontrada.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>

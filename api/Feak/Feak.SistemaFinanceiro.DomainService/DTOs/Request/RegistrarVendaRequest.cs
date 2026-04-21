@@ -4,6 +4,9 @@ namespace DomainService.DTOs.Request;
 
 public class RegistrarVendaRequest
 {
+    [Required(ErrorMessage = "Operador obrigatório")]
+    public string Operador { get; set; } = string.Empty;
+
     [Required(ErrorMessage = "Consumidor obrigatório")]
     public string Consumidor { get; set; } = string.Empty;
 

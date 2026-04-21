@@ -101,18 +101,47 @@
 }
 
 .form-row-full input,
-.produto-select,
 .metric-field input {
   width: 100%;
 }
 
-.produto-select {
-  height: 40px;
-  padding: 0 10px;
+:host ::ng-deep .produto-dropdown {
+  width: 100%;
+  min-height: 40px;
   border: 1px solid #cfd7e3;
   border-radius: 3px;
   background: #ffffff;
   color: #3a4b5b;
+}
+
+:host ::ng-deep .produto-dropdown .p-dropdown-label {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 10px;
+}
+
+:host ::ng-deep .produto-dropdown .p-dropdown-trigger {
+  width: 40px;
+}
+
+:host ::ng-deep .produto-dropdown-panel {
+  min-width: 100%;
+}
+
+.produto-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.produto-option__descricao {
+  color: #3a4b5b;
+  font-weight: 600;
+}
+
+.produto-option small {
+  color: #738395;
 }
 
 .toggle-grid {

@@ -6,6 +6,7 @@ import { LibsModule } from '../../assets/libs/libs.module';
 import { UsuarioComponent } from './usuario/usuario.component';
 import { ProdutoComponent } from './produto/produto.component';
 import { PdvComponent } from './pdv/pdv.component';
+import { RelatorioComponent } from './relatorio/relatorio.component';
 import { PagesRoutingModule } from '../routing/pages-routing.module';
 
 @NgModule({
@@ -14,6 +15,7 @@ import { PagesRoutingModule } from '../routing/pages-routing.module';
     UsuarioComponent,
     ProdutoComponent,
     PdvComponent,
+    RelatorioComponent,
   ],
   imports: [
     CommonModule,

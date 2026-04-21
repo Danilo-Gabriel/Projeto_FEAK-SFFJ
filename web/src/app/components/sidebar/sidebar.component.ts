@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { KeycloakService } from 'keycloak-angular';
+import { AuthSessionService } from '../../core/services/auth-session.service';
 import { AppMessageService } from '../../shared/services/app-message.service';
 
 @Component({
@@ -13,7 +14,9 @@ export class SidebarComponent implements OnInit {
 
   constructor(
     private router : Router,
-    private message : AppMessageService
+    private message : AppMessageService,
+    private authSessionService: AuthSessionService,
+    private keycloak: KeycloakService
   ){
 
   }
@@ -30,8 +33,15 @@ export class SidebarComponent implements OnInit {
     }
 
 
-    logout(){
-     this.router.navigate(['/login']);
+    async logout(){
+      this.authSessionService.limparSessao();
+      const autenticado = this.keycloak.isLoggedIn();
+      if (autenticado) {
+        await this.keycloak.logout(window.location.origin);
+        return;
+      }
+
+      this.router.navigate(['/login']);
     }
 
     

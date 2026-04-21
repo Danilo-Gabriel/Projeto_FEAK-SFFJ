@@ -13,6 +13,7 @@ import { PasswordModule } from 'primeng/password';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { PaginatorModule } from 'primeng/paginator';
+import { DropdownModule } from 'primeng/dropdown';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ exports: [
   PasswordModule,
   ConfirmDialogModule,
   DynamicDialogModule,
-  PaginatorModule
+  PaginatorModule,
+  DropdownModule
 ]
 })
 export class LibsModule { }

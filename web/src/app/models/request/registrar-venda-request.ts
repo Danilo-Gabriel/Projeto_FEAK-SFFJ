@@ -1,4 +1,5 @@
 export interface RegistrarVendaRequest {
+  operador: string;
   consumidor: string;
   formaPagamento: string;
   acrescimo: number;

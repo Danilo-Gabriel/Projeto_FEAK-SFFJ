@@ -35,23 +35,115 @@ public class SecurityContext : ISecurityContext
 
     #endregion
 
+    public bool IsAuthenticated()
+    {
+        return User?.Identity?.IsAuthenticated == true;
+    }
+
     public string GetUserId()
     {
-        var id = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(id))
-            return null;
-
-        return id.Split(':').Skip(2).FirstOrDefault();
+        return GetClaimValue("sub", ClaimTypes.NameIdentifier);
     }
 
     public string GetUserName()
     {
-        return User?.FindFirst("preferred_username")?.Value ?? User?.Identity?.Name;
+        return GetClaimValue("preferred_username", ClaimTypes.Name, "name", "given_name");
+    }
+
+    public string GetFullName()
+    {
+        var fullName = GetClaimValue("name");
+        if (!string.IsNullOrWhiteSpace(fullName))
+        {
+            return fullName;
+        }
+
+        var givenName = GetClaimValue("given_name", ClaimTypes.GivenName);
+        var familyName = GetClaimValue("family_name", ClaimTypes.Surname);
+        var nomeCompleto = string.Join(" ", new[] { givenName, familyName }.Where(x => !string.IsNullOrWhiteSpace(x)));
+
+        return !string.IsNullOrWhiteSpace(nomeCompleto) ? nomeCompleto : GetUserName();
     }
 
     public string GetEmail()
     {
-        return User?.FindFirst(ClaimTypes.Email)?.Value;
+        return GetClaimValue("email", ClaimTypes.Email);
+    }
+
+    public IEnumerable<string> GetRoles()
+    {
+        var roles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var claim in User?.FindAll(ClaimTypes.Role) ?? Enumerable.Empty<Claim>())
+        {
+            if (!string.IsNullOrWhiteSpace(claim.Value))
+            {
+                roles.Add(claim.Value);
+            }
+        }
+
+        foreach (var claim in User?.FindAll("role") ?? Enumerable.Empty<Claim>())
+        {
+            if (!string.IsNullOrWhiteSpace(claim.Value))
+            {
+                roles.Add(claim.Value);
+            }
+        }
+
+        var realmAccess = GetClaimValue("realm_access");
+        if (!string.IsNullOrWhiteSpace(realmAccess))
+        {
+            try
+            {
+                using var document = JsonDocument.Parse(realmAccess);
+                if (document.RootElement.TryGetProperty("roles", out var rolesElement)
+                    && rolesElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var role in rolesElement.EnumerateArray())
+                    {
+                        var roleValue = role.GetString();
+                        if (!string.IsNullOrWhiteSpace(roleValue))
+                        {
+                            roles.Add(roleValue);
+                        }
+                    }
+                }
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Não foi possível interpretar a claim realm_access.");
+            }
+        }
+
+        var resourceAccess = GetClaimValue("resource_access");
+        if (!string.IsNullOrWhiteSpace(resourceAccess))
+        {
+            try
+            {
+                using var document = JsonDocument.Parse(resourceAccess);
+                foreach (var recurso in document.RootElement.EnumerateObject())
+                {
+                    if (recurso.Value.TryGetProperty("roles", out var rolesElement)
+                        && rolesElement.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var role in rolesElement.EnumerateArray())
+                        {
+                            var roleValue = role.GetString();
+                            if (!string.IsNullOrWhiteSpace(roleValue))
+                            {
+                                roles.Add(roleValue);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogWarning(ex, "Não foi possível interpretar a claim resource_access.");
+            }
+        }
+
+        return roles;
     }
 
   // public IEnumerable<DomainDTO> GetPerfis()
@@ -76,6 +168,20 @@ public class SecurityContext : ISecurityContext
         if (!string.IsNullOrEmpty(claim))
         {
             return JsonSerializer.Deserialize<DomainDTO>(claim);
+        }
+
+        return null;
+    }
+
+    private string GetClaimValue(params string[] claimTypes)
+    {
+        foreach (var claimType in claimTypes)
+        {
+            var claimValue = User?.FindFirst(claimType)?.Value;
+            if (!string.IsNullOrWhiteSpace(claimValue))
+            {
+                return claimValue;
+            }
         }
 
         return null;

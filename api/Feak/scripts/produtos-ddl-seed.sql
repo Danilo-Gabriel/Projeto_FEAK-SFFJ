@@ -38,16 +38,28 @@ CREATE UNIQUE INDEX IF NOT EXISTS "IX_Produtos_CodigoBarras"
 CREATE TABLE IF NOT EXISTS "Vendas" (
     "Id" uuid NOT NULL DEFAULT gen_random_uuid(),
     numero_venda text NOT NULL,
+    operador text NOT NULL DEFAULT '',
     consumidor text NOT NULL,
     forma_pagamento text NOT NULL,
     subtotal numeric(18,2) NOT NULL DEFAULT 0,
     desconto_total numeric(18,2) NOT NULL DEFAULT 0,
     acrescimo numeric(18,2) NOT NULL DEFAULT 0,
     total numeric(18,2) NOT NULL DEFAULT 0,
+    cancelada boolean NOT NULL DEFAULT false,
+    dh_cancelamento timestamp with time zone NULL,
     "DhInclusao" timestamp with time zone NOT NULL DEFAULT now(),
     "DhExclusao" timestamp with time zone NULL,
     CONSTRAINT "PK_Vendas" PRIMARY KEY ("Id")
 );
+
+ALTER TABLE "Vendas"
+    ADD COLUMN IF NOT EXISTS operador text NOT NULL DEFAULT '';
+
+ALTER TABLE "Vendas"
+    ADD COLUMN IF NOT EXISTS cancelada boolean NOT NULL DEFAULT false;
+
+ALTER TABLE "Vendas"
+    ADD COLUMN IF NOT EXISTS dh_cancelamento timestamp with time zone NULL;
 
 CREATE TABLE IF NOT EXISTS "VendaItens" (
     "Id" uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -89,4 +101,12 @@ WHERE NOT EXISTS (
     SELECT 1
     FROM "__EFMigrationsHistory"
     WHERE "MigrationId" = '20260421000200_add_vendas_and_codigo_barras'
+);
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+SELECT '20260421165849_add_venda_operador_cancelamento', '8.0.20'
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM "__EFMigrationsHistory"
+    WHERE "MigrationId" = '20260421165849_add_venda_operador_cancelamento'
 );

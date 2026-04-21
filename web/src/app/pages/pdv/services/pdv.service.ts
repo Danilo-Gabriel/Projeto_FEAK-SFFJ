@@ -23,6 +23,20 @@ export class PdvService {
     return this.httpService.post<ServiceResponse<VendaDTO>>('Vendas', payload);
   }
 
+  listarVendas(): Observable<VendaDTO[]> {
+    return this.httpService.get<VendaDTO[]>('Vendas').pipe(
+      map((response) => response?.dados ?? [])
+    );
+  }
+
+  cancelarVenda(vendaId: string): Observable<ServiceResponse<VendaDTO>> {
+    return this.httpService.put<ServiceResponse<VendaDTO>>(`Vendas/${vendaId}/cancelar`, {});
+  }
+
+  exportarRelatorioExcel(): Observable<Blob> {
+    return this.httpService.getBlob('Vendas/exportar-excel');
+  }
+
   private normalizarProdutos(produtos: ProdutoDTO[] | null | undefined): ProdutoDTO[] {
     if (!produtos) {
       throw new Error('A API não retornou o catálogo de produtos.');

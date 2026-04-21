@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { UsuarioComponent } from '../pages/usuario/usuario.component';
 import { ProdutoComponent } from '../pages/produto/produto.component';
 import { PdvComponent } from '../pages/pdv/pdv.component';
+import { RelatorioComponent } from '../pages/relatorio/relatorio.component';
 import { SidebarComponent } from '../components/sidebar/sidebar.component';
 
 const routes: Routes = [
@@ -14,6 +15,7 @@ const routes: Routes = [
     { path: 'usuario', component: UsuarioComponent},
     { path: 'produto', component: ProdutoComponent},
     { path: 'estoque', component: ProdutoComponent},
+    { path: 'relatorio', component: RelatorioComponent},
 
     ]
   }

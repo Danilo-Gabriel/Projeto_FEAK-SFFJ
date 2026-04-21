@@ -27,6 +27,15 @@ public class VendaRepository : BaseRepository<Venda>, IVendaRepository
         return $"VD{sequencia:000000}";
     }
 
+    public async Task<List<Venda>> ListarVendasAsync()
+    {
+        return await _context.Vendas
+            .Include(x => x.Itens)
+            .Where(x => x.DhExclusao == null)
+            .OrderByDescending(x => x.DhInclusao)
+            .ToListAsync();
+    }
+
     public async Task<Venda> RegistrarVendaAsync(Venda venda, List<VendaItem> itens)
     {
         await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -49,6 +58,47 @@ public class VendaRepository : BaseRepository<Venda>, IVendaRepository
             await transaction.CommitAsync();
 
             venda.Itens = itens;
+            return venda;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<Venda?> ObterVendaComItensAsync(Guid vendaId)
+    {
+        return await _context.Vendas
+            .Include(x => x.Itens)
+            .FirstOrDefaultAsync(x => x.Id == vendaId);
+    }
+
+    public async Task<Venda> CancelarVendaAsync(Venda venda)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var produtoIds = venda.Itens.Select(x => x.ProdutoId).Distinct().ToList();
+            var produtos = await _context.Produtos.Where(x => produtoIds.Contains(x.Id)).ToListAsync();
+
+            foreach (var item in venda.Itens)
+            {
+                var produto = produtos.FirstOrDefault(x => x.Id == item.ProdutoId);
+                if (produto == null)
+                {
+                    continue;
+                }
+
+                produto.EstoqueAtual += item.Quantidade;
+                _context.Produtos.Update(produto);
+            }
+
+            _context.Vendas.Update(venda);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
             return venda;
         }
         catch

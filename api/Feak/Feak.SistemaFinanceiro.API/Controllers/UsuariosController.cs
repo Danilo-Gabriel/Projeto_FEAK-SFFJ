@@ -77,10 +77,35 @@ public class UsuariosController : ControllerBase
     //[Authorize]
     public async Task<ActionResult<ServiceResponse<List<UsuarioDTO>>>> ObterUsuarios()
     {
-        var email = _securityContext.GetEmail();
-        var nome = _securityContext.GetUserName(); 
         return Ok(await _usuarioDomainService.ObterUsuarios());
         
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public ActionResult<ServiceResponse<UsuarioLogadoDTO>> ObterUsuarioLogado()
+    {
+        if (!_securityContext.IsAuthenticated())
+        {
+            return Unauthorized(new ServiceResponse<UsuarioLogadoDTO>
+            {
+                Success = false,
+                Mensagem = "Usuário não autenticado."
+            });
+        }
+
+        return Ok(new ServiceResponse<UsuarioLogadoDTO>
+        {
+            Dados = new UsuarioLogadoDTO
+            {
+                Id = _securityContext.GetUserId(),
+                NomeLogin = _securityContext.GetUserName(),
+                NomeCompleto = _securityContext.GetFullName(),
+                Email = _securityContext.GetEmail(),
+                Autenticado = true,
+                Perfis = _securityContext.GetRoles()
+            }
+        });
     }
 
     [HttpDelete("{id}")]

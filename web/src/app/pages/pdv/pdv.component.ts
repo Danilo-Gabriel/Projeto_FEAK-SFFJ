@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProdutoDTO } from '../../models/dto/produto-dto';
 import { PdvItemDTO } from '../../models/dto/pdv-item-dto';
 import { RegistrarVendaRequest } from '../../models/request/registrar-venda-request';
+import { AuthSessionService } from '../../core/services/auth-session.service';
 import { AppMessageService } from '../../shared/services/app-message.service';
 import { PdvService } from './services/pdv.service';
 
@@ -17,6 +18,8 @@ export class PdvComponent implements OnInit {
   public itensVenda: PdvItemDTO[] = [];
   public produtoSelecionado: ProdutoDTO | null = null;
   public salvandoVenda: boolean = false;
+  private origemDesconto: 'valor' | 'percentual' = 'valor';
+  private readonly authSessionService = inject(AuthSessionService);
 
   constructor(
     private formBuilder: FormBuilder,
@@ -26,6 +29,7 @@ export class PdvComponent implements OnInit {
 
   ngOnInit(): void {
     this.criarFormulario();
+    this.configurarSincronizacaoDescontos();
     this.carregarProdutos();
   }
 
@@ -52,25 +56,13 @@ export class PdvComponent implements OnInit {
     return this.subtotal + this.acrescimo;
   }
 
-  get produtoOptions(): ProdutoDTO[] {
-    const termo = this.pdvForm.get('buscaProduto')?.value?.toString().trim().toLowerCase() ?? '';
-    return this.produtos.filter((produto) => {
-      return !termo
-        || produto.descricao.toLowerCase().includes(termo)
-        || produto.codigoBarras.toLowerCase().includes(termo)
-        || produto.id.toLowerCase().includes(termo);
-    });
-  }
-
   get totalItemDigitado(): number {
     const quantidade = Number(this.pdvForm.get('quantidade')?.value ?? 0);
     const valorUnitario = Number(this.pdvForm.get('valorUnitario')?.value ?? 0);
-    const descontoValor = Number(this.pdvForm.get('descontoValor')?.value ?? 0);
-    const descontoPercentual = Number(this.pdvForm.get('descontoPercentual')?.value ?? 0);
 
     const subtotal = quantidade * valorUnitario;
-    const descontoCalculado = subtotal * (descontoPercentual / 100);
-    const total = subtotal - descontoValor - descontoCalculado;
+    const descontoAplicado = this.obterDescontoDigitadoValor();
+    const total = subtotal - descontoAplicado;
     return total > 0 ? total : 0;
   }
 
@@ -85,7 +77,7 @@ export class PdvComponent implements OnInit {
         descontoValor: 0,
         descontoPercentual: 0,
         codigoBarras: ''
-      });
+      }, { emitEvent: false });
       return;
     }
 
@@ -95,7 +87,7 @@ export class PdvComponent implements OnInit {
       quantidade: 1,
       descontoValor: 0,
       descontoPercentual: 0
-    });
+    }, { emitEvent: false });
   }
 
   adicionarItem(): void {
@@ -109,8 +101,8 @@ export class PdvComponent implements OnInit {
 
     const quantidade = Number(this.pdvForm.get('quantidade')?.value ?? 0);
     const valorUnitario = Number(this.pdvForm.get('valorUnitario')?.value ?? 0);
-    const descontoValor = Number(this.pdvForm.get('descontoValor')?.value ?? 0);
-    const descontoPercentual = Number(this.pdvForm.get('descontoPercentual')?.value ?? 0);
+    const descontoValor = this.obterDescontoDigitadoValor();
+    const descontoPercentual = this.obterDescontoPercentualDigitado();
 
     if (quantidade <= 0) {
       this.messageService.showWarn('Informe uma quantidade válida.');
@@ -131,8 +123,7 @@ export class PdvComponent implements OnInit {
     }
 
     const subtotalBruto = quantidade * valorUnitario;
-    const descontoCalculado = subtotalBruto * (descontoPercentual / 100);
-    const descontoTotal = descontoValor + descontoCalculado;
+    const descontoTotal = descontoValor;
 
     if (descontoTotal > subtotalBruto) {
       this.messageService.showWarn('O desconto não pode ser maior que o subtotal do item.');
@@ -140,10 +131,16 @@ export class PdvComponent implements OnInit {
     }
 
     if (itemExistente) {
+      const novaQuantidade = itemExistente.quantidade + quantidade;
+      const novoDescontoValor = Number(((itemExistente.descontoValor ?? 0) + descontoValor).toFixed(2));
+      const novoSubtotalBruto = novaQuantidade * valorUnitario;
+
       itemExistente.quantidade += quantidade;
       itemExistente.precoUnitario = valorUnitario;
-      itemExistente.descontoValor = (itemExistente.descontoValor ?? 0) + descontoValor;
-      itemExistente.descontoPercentual = descontoPercentual;
+      itemExistente.descontoValor = novoDescontoValor;
+      itemExistente.descontoPercentual = novoSubtotalBruto > 0
+        ? Number(((novoDescontoValor / novoSubtotalBruto) * 100).toFixed(2))
+        : 0;
       itemExistente.codigo = produto.codigoBarras;
       this.cancelarDigitacao(false);
       return;
@@ -225,12 +222,16 @@ export class PdvComponent implements OnInit {
         return;
       }
 
-      this.pdvForm.patchValue({ produtoId: produto.id });
+      this.pdvForm.patchValue({ produtoId: produto.id }, { emitEvent: false });
       this.onProdutoSelecionado(produto.id);
 
       if (inclusaoAutomatica) {
         this.adicionarItem();
       }
+
+    //  if (inclusaoAutomatica && itemExistente) {
+    //     this.messageService.showInfo('Produto carregado no editor. Confirme a quantidade e clique em Adicionar para lançar na listagem.');
+    //   }
     };
 
     const produtoLocal = localizarProduto(this.produtos);
@@ -262,7 +263,14 @@ export class PdvComponent implements OnInit {
       return;
     }
 
+    const operador = this.authSessionService.obterOperador();
+    if (!operador) {
+      this.messageService.showWarn('Não foi possível identificar o operador logado. Faça login novamente.');
+      return;
+    }
+
     const payload: RegistrarVendaRequest = {
+      operador,
       consumidor: this.pdvForm.get('consumidor')?.value,
       formaPagamento: 'DINHEIRO',
       acrescimo: this.acrescimo,
@@ -307,15 +315,13 @@ export class PdvComponent implements OnInit {
       valorUnitario: 0,
       descontoValor: 0,
       descontoPercentual: 0,
-      buscaProduto: limparBusca ? '' : this.pdvForm.get('buscaProduto')?.value
-    });
+    }, { emitEvent: false });
   }
 
   obterSubtotalItem(item: PdvItemDTO): number {
     const subtotal = item.quantidade * item.precoUnitario;
-    const descontoPercentual = subtotal * ((item.descontoPercentual ?? 0) / 100);
-    const descontoValor = item.descontoValor ?? 0;
-    const total = subtotal - descontoPercentual - descontoValor;
+    const descontoValor = Number(item.descontoValor ?? 0);
+    const total = subtotal - descontoValor;
     return total > 0 ? total : 0;
   }
 
@@ -323,7 +329,6 @@ export class PdvComponent implements OnInit {
     this.pdvForm = this.formBuilder.group({
       consumidor: ['CONSUMIDOR FINAL'],
       codigoBarras: [''],
-      buscaProduto: [''],
       produtoId: ['', Validators.required],
       quantidade: [1, [Validators.required, Validators.min(1)]],
       valorUnitario: [0, [Validators.required, Validators.min(0)]],
@@ -333,6 +338,91 @@ export class PdvComponent implements OnInit {
       exclusaoAutomatica: [false],
       buscaReferencia: [false]
     });
+  }
+
+  private configurarSincronizacaoDescontos(): void {
+    this.pdvForm.get('descontoPercentual')?.valueChanges.subscribe((value) => {
+      this.origemDesconto = 'percentual';
+      this.atualizarDescontoPorPercentual(Number(value ?? 0));
+    });
+
+    this.pdvForm.get('descontoValor')?.valueChanges.subscribe((value) => {
+      this.origemDesconto = 'valor';
+      this.atualizarDescontoPorValor(Number(value ?? 0));
+    });
+
+    this.pdvForm.get('quantidade')?.valueChanges.subscribe(() => {
+      this.atualizarDescontoAtivo();
+    });
+
+    this.pdvForm.get('valorUnitario')?.valueChanges.subscribe(() => {
+      this.atualizarDescontoAtivo();
+    });
+  }
+
+  private obterSubtotalBrutoDigitado(): number {
+    const quantidade = Number(this.pdvForm.get('quantidade')?.value ?? 0);
+    const valorUnitario = Number(this.pdvForm.get('valorUnitario')?.value ?? 0);
+    return quantidade * valorUnitario;
+  }
+
+  private obterDescontoDigitadoValor(): number {
+    const subtotal = this.obterSubtotalBrutoDigitado();
+    const descontoValor = Number(this.pdvForm.get('descontoValor')?.value ?? 0);
+    return this.normalizarDesconto(descontoValor, subtotal);
+  }
+
+  private obterDescontoPercentualDigitado(): number {
+    const subtotal = this.obterSubtotalBrutoDigitado();
+    const descontoValor = this.obterDescontoDigitadoValor();
+    return subtotal > 0 ? Number(((descontoValor / subtotal) * 100).toFixed(2)) : 0;
+  }
+
+  private atualizarDescontoAtivo(): void {
+    if (this.origemDesconto === 'percentual') {
+      const percentual = Number(this.pdvForm.get('descontoPercentual')?.value ?? 0);
+      this.atualizarDescontoPorPercentual(percentual);
+      return;
+    }
+
+    const descontoValor = Number(this.pdvForm.get('descontoValor')?.value ?? 0);
+    this.atualizarDescontoPorValor(descontoValor);
+  }
+
+  private atualizarDescontoPorPercentual(percentualInformado: number): void {
+    const subtotal = this.obterSubtotalBrutoDigitado();
+    const percentualNormalizado = percentualInformado < 0 ? 0 : percentualInformado;
+    const descontoValor = subtotal > 0
+      ? this.normalizarDesconto((subtotal * percentualNormalizado) / 100, subtotal)
+      : 0;
+
+    this.pdvForm.patchValue({
+      descontoPercentual: subtotal > 0 ? Number(((descontoValor / subtotal) * 100).toFixed(2)) : 0,
+      descontoValor
+    }, { emitEvent: false });
+  }
+
+  private atualizarDescontoPorValor(descontoInformado: number): void {
+    const subtotal = this.obterSubtotalBrutoDigitado();
+    const descontoValor = this.normalizarDesconto(descontoInformado, subtotal);
+    const descontoPercentual = subtotal > 0 ? Number(((descontoValor / subtotal) * 100).toFixed(2)) : 0;
+
+    this.pdvForm.patchValue({
+      descontoValor,
+      descontoPercentual
+    }, { emitEvent: false });
+  }
+
+  private normalizarDesconto(descontoInformado: number, subtotal: number): number {
+    if (subtotal <= 0) {
+      return 0;
+    }
+
+    if (descontoInformado <= 0) {
+      return 0;
+    }
+
+    return Number(Math.min(descontoInformado, subtotal).toFixed(2));
   }
 
   private carregarProdutos(): void {
