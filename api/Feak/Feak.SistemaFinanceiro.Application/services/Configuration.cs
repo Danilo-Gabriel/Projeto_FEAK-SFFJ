@@ -35,7 +35,8 @@ public static class Configuration
         var connectionString = configuration.GetConnectionString("feak");
 
             services.AddDbContext<ApplicationDbcontext>(options =>
-            options.UseNpgsql(connectionString));
+            options.UseNpgsql(connectionString, npgsqlOptions =>
+                npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "feak_sf")));
         
     }
 

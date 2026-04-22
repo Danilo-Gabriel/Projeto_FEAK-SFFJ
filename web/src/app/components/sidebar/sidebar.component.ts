@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { KeycloakService } from 'keycloak-angular';
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { AppMessageService } from '../../shared/services/app-message.service';
@@ -22,14 +22,26 @@ export class SidebarComponent implements OnInit {
   }
 
     sidebarClosed = false;
-
+    mobileOpen = false;
 
     ngOnInit(): void {
-      
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationEnd) {
+          this.mobileOpen = false;
+        }
+      });
     }
 
     toggleSidebar(): void {
        this.sidebarClosed = !this.sidebarClosed;
+    }
+
+    toggleMobile(): void {
+      this.mobileOpen = !this.mobileOpen;
+    }
+
+    closeMobile(): void {
+      this.mobileOpen = false;
     }
 
 

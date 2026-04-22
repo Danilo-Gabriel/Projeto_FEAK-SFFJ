@@ -1,5 +1,7 @@
 <p-toast />
-<div class="body-sidebar" [class.close]="sidebarClosed">
+<div class="body-sidebar" [class.close]="sidebarClosed" [class.mobile-open]="mobileOpen">
+<button class="mobile-toggle" (click)="toggleMobile()"><i class="bx bx-menu"></i></button>
+<div class="sidebar-overlay" (click)="closeMobile()"></div>
 <nav class="sidebar">
     <header>
         <div class="image-text">

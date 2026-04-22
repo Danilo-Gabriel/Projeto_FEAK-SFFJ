@@ -29,9 +29,17 @@
     <button pButton type="button" label="Pesquisar" icon="pi pi-search" (click)="pesquisar()"></button>
   </div>
 
-  <article class="metrica-card faturamento faturamento-destaque">
-    <span class="titulo">Faturamento</span>
-    <strong>{{ faturamento | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
-    <small>Valor total das vendas fechadas dentro do período informado.</small>
-  </article>
+  <div class="metricas-grid">
+    <article class="metrica-card faturamento faturamento-destaque">
+      <span class="titulo">Faturamento</span>
+      <strong>{{ faturamento | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+      <small>Valor total das vendas fechadas dentro do período informado.</small>
+    </article>
+
+    <article class="metrica-card valor-estoque faturamento-destaque">
+      <span class="titulo">Valor total em vendas do estoque</span>
+      <strong>{{ valorTotalEstoque | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+      <small>Potencial total de vendas considerando o preço de venda e o estoque atual.</small>
+    </article>
+  </div>
 </div>

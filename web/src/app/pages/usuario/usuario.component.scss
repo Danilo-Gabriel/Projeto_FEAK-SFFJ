@@ -4,3 +4,14 @@
         flex: 1;
     }
 }
+
+@media (max-width: 768px) {
+  :host ::ng-deep .p-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+  }
+
+  :host ::ng-deep .p-dialog .p-dialog-content {
+    padding: 1rem;
+  }
+}

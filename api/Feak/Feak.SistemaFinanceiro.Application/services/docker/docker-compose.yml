@@ -1,7 +1,6 @@
-﻿version: '3.8'
-
-services:
+﻿services:
   postgres:
+    container_name: postgres-api
     image: ${POSTGRES_IMAGE}
     restart: always
     environment:
@@ -15,33 +14,9 @@ services:
     networks:
       - feak-net
 
-  keycloak:
-    build:
-      context: ../../../../../spi-keycloak
-      dockerfile: DockerFile
-    command: ["start-dev"]
-    restart: always
-    environment:
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
-      KC_DB_USERNAME: ${POSTGRES_USER}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
-      KC_LOGIN_THEME: ${KEYCLOAK_THEME}
-    ports:
-      - "${KEYCLOAK_HOST_PORT}:8080"
-    volumes:
-      - ../../../../../spi-keycloak/themes:/opt/keycloak/themes:ro
-    depends_on:
-      - postgres
-    networks:
-      - feak-net
-
-
 volumes:
   db_postgres:
-    
+
 networks:
   feak-net:
     driver: bridge

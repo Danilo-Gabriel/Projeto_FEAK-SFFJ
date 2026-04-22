@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PdvService } from '../pdv/services/pdv.service';
 import { VendaDTO } from '../../models/dto/venda-dto';
+import { ProdutoDTO } from '../../models/dto/produto-dto';
 import { UsuarioLogadoDTO } from '../../models/dto/usuario-logado-dto';
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { AppMessageService } from '../../shared/services/app-message.service';
@@ -17,8 +18,10 @@ export class DashboardComponent implements OnInit {
   public usuarioLogado: UsuarioLogadoDTO | null = null;
 
   public faturamento: number = 0;
+  public valorTotalEstoque: number = 0;
 
   private vendas: VendaDTO[] = [];
+  private produtos: ProdutoDTO[] = [];
 
   constructor(
     private readonly pdvService: PdvService,
@@ -39,6 +42,7 @@ export class DashboardComponent implements OnInit {
     });
 
     this.carregarVendas();
+    this.carregarProdutos();
   }
 
   pesquisar(): void {
@@ -82,6 +86,19 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  private carregarProdutos(): void {
+    this.pdvService.listarProdutos().subscribe({
+      next: (produtos) => {
+        this.produtos = produtos ?? [];
+        this.aplicarValorEstoque();
+      },
+      error: () => {
+        this.produtos = [];
+        this.valorTotalEstoque = 0;
+      }
+    });
+  }
+
   private aplicarFiltro(): void {
     const inicio = this.dataInicial ? new Date(`${this.dataInicial}T00:00:00`) : null;
     const fim = this.dataFinal ? new Date(`${this.dataFinal}T23:59:59`) : null;
@@ -103,6 +120,13 @@ export class DashboardComponent implements OnInit {
       });
 
     this.faturamento = vendasFiltradas.reduce((total, venda) => total + Number(venda.total ?? 0), 0);
+  }
+
+  private aplicarValorEstoque(): void {
+    this.valorTotalEstoque = this.produtos.reduce(
+      (total, produto) => total + (Number(produto.precoVenda ?? 0) * Number(produto.estoqueAtual ?? 0)),
+      0
+    );
   }
 
   private formatarDataInput(data: Date): string {

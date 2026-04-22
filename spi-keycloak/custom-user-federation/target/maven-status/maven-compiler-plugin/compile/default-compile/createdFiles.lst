@@ -1,0 +1,5 @@
+com\example\keycloak\mappers\CustomProtocolMapper.class
+com\example\keycloak\App.class
+com\example\keycloak\federation\CustomUserStorageProvider.class
+com\example\keycloak\federation\CustomUserStorageProviderFactory.class
+com\example\keycloak\federation\FederatedUserAdapter.class

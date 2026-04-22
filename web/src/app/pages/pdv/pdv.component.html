@@ -18,7 +18,7 @@
     <article class="pdv-editor" [formGroup]="pdvForm">
       <div class="consumidor-box">
         <i class="pi pi-user"></i>
-        <span>{{ pdvForm.get('consumidor')?.value }} (Clique aqui para identificar ou utilize a tecla F2)</span>
+        <span>{{ pdvForm.get('consumidor')?.value }} (Clique aqui para identificar)</span>
       </div>
 
       <div class="form-row form-row-full">
@@ -62,7 +62,7 @@
           </button>
         </div>
 
-        <div class="toggle-card" [class.active]="pdvForm.get('exclusaoAutomatica')?.value">
+        <!-- <div class="toggle-card" [class.active]="pdvForm.get('exclusaoAutomatica')?.value">
           <span>EXCLUSÃO AUT.</span>
           <button type="button" (click)="pdvForm.patchValue({ exclusaoAutomatica: !pdvForm.get('exclusaoAutomatica')?.value })">
             {{ pdvForm.get('exclusaoAutomatica')?.value ? 'Habilitado' : 'Desabilitado' }}
@@ -74,7 +74,7 @@
           <button type="button" (click)="pdvForm.patchValue({ buscaReferencia: !pdvForm.get('buscaReferencia')?.value })">
             {{ pdvForm.get('buscaReferencia')?.value ? 'Habilitado' : 'Desabilitado' }}
           </button>
-        </div>
+        </div> -->
       </div>
 
       <div class="metrics-grid">
@@ -117,7 +117,6 @@
           <h2>LISTAGEM DOS ITENS</h2>
           <p>Seleção baseada nos produtos importados e gerenciados na tela de estoque.</p>
         </div>
-        <span class="lista-shortcut">ALT+R: excluir último registro</span>
       </div>
 
       <div class="table-wrapper">
