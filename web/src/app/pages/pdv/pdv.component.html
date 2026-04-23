@@ -105,7 +105,7 @@
       </div>
 
       <div class="editor-actions">
-        <button pButton type="button" label="Adicionar" icon="pi pi-plus" severity="info" (click)="adicionarItem()"></button>
+        <button pButton type="button" [label]="emEdicao ? 'Salvar edição' : 'Adicionar'" [icon]="emEdicao ? 'pi pi-check' : 'pi pi-plus'" severity="info" (click)="adicionarItem()"></button>
         <button pButton type="button" label="Cancelar" icon="pi pi-times-circle" severity="secondary" (click)="cancelarDigitacao()"></button>
         <button pButton type="button" label="Finalizar venda" icon="pi pi-check" severity="success" [loading]="salvandoVenda" (click)="finalizarVenda()"></button>
       </div>
@@ -139,6 +139,9 @@
             </tr>
             <tr *ngFor="let item of itensVenda; let indice = index">
               <td>
+                <button type="button" class="icon-action icon-action--edit" (click)="editarItem(item)">
+                  <i class="pi pi-pencil"></i>
+                </button>
                 <button type="button" class="icon-action" (click)="removerItem(item.id)">
                   <i class="pi pi-trash"></i>
                 </button>

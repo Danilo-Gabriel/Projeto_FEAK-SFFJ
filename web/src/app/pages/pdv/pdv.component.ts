@@ -18,6 +18,7 @@ export class PdvComponent implements OnInit {
   public itensVenda: PdvItemDTO[] = [];
   public produtoSelecionado: ProdutoDTO | null = null;
   public salvandoVenda: boolean = false;
+  public itemEmEdicaoId: string | null = null;
   private origemDesconto: 'valor' | 'percentual' = 'valor';
   private readonly authSessionService = inject(AuthSessionService);
 
@@ -64,6 +65,10 @@ export class PdvComponent implements OnInit {
     const descontoAplicado = this.obterDescontoDigitadoValor();
     const total = subtotal - descontoAplicado;
     return total > 0 ? total : 0;
+  }
+
+  get emEdicao(): boolean {
+    return !!this.itemEmEdicaoId;
   }
 
   onProdutoSelecionado(produtoId: string): void {
@@ -130,6 +135,34 @@ export class PdvComponent implements OnInit {
       return;
     }
 
+    if (this.itemEmEdicaoId) {
+      if (quantidade > produto.estoqueAtual) {
+        this.messageService.showWarn('A quantidade editada ultrapassa o estoque disponível.');
+        return;
+      }
+
+      this.itensVenda = this.itensVenda.map((item) => {
+        if (item.id !== this.itemEmEdicaoId) {
+          return item;
+        }
+
+        return {
+          ...item,
+          codigo: produto.codigoBarras,
+          descricao: produto.descricao,
+          quantidade,
+          precoUnitario: valorUnitario,
+          estoqueDisponivel: produto.estoqueAtual,
+          descontoValor,
+          descontoPercentual
+        };
+      });
+
+      this.messageService.showSuccess('Item atualizado na lista.');
+      this.cancelarDigitacao(false);
+      return;
+    }
+
     if (itemExistente) {
       const novaQuantidade = itemExistente.quantidade + quantidade;
       const novoDescontoValor = Number(((itemExistente.descontoValor ?? 0) + descontoValor).toFixed(2));
@@ -190,6 +223,33 @@ export class PdvComponent implements OnInit {
 
   removerItem(itemId: string): void {
     this.itensVenda = this.itensVenda.filter((item) => item.id !== itemId);
+
+    if (this.itemEmEdicaoId === itemId) {
+      this.cancelarDigitacao();
+    }
+  }
+
+  editarItem(item: PdvItemDTO): void {
+    const produto = this.produtos.find((produtoAtual) => produtoAtual.id === item.id);
+    this.itemEmEdicaoId = item.id;
+    this.produtoSelecionado = produto ?? {
+      id: item.id,
+      codigoBarras: item.codigo ?? '',
+      descricao: item.descricao,
+      precoCusto: 0,
+      precoVenda: item.precoUnitario,
+      estoqueAtual: item.estoqueDisponivel
+    };
+
+    this.origemDesconto = 'valor';
+    this.pdvForm.patchValue({
+      produtoId: item.id,
+      codigoBarras: item.codigo ?? '',
+      quantidade: item.quantidade,
+      valorUnitario: item.precoUnitario,
+      descontoValor: item.descontoValor ?? 0,
+      descontoPercentual: item.descontoPercentual ?? 0
+    }, { emitEvent: false });
   }
 
   pesquisarPorCodigoBarras(): void {
@@ -308,6 +368,7 @@ export class PdvComponent implements OnInit {
 
   cancelarDigitacao(limparBusca: boolean = true): void {
     this.produtoSelecionado = null;
+    this.itemEmEdicaoId = null;
     this.pdvForm.patchValue({
       codigoBarras: '',
       produtoId: '',

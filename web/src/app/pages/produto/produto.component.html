@@ -1,5 +1,4 @@
 <p-toast />
-<p-confirmDialog />
 
 <section class="produto-page">
     <div class="produto-header">
@@ -60,7 +59,7 @@
                     <td>{{ product.precoCusto | currency:'BRL' }}</td>
                     <td>{{ product.precoVenda | currency:'BRL' }}</td>
                     <td>{{ product.estoqueAtual }}</td>
-                    <td>{{ product.precoCusto * product.estoqueAtual | currency:'BRL' }}</td>
+                    <td>{{ product.precoVenda * product.estoqueAtual | currency:'BRL' }}</td>
                     <td class="row-actions">
                         <p-button icon="pi pi-pencil" [rounded]="true" [outlined]="true" severity="success" (onClick)="acaoProduto(product)" />
                         <p-button icon="pi pi-trash" [rounded]="true" [outlined]="true" severity="danger" (onClick)="infoProduto(product)" />

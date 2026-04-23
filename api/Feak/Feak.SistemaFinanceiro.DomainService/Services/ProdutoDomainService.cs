@@ -253,11 +253,13 @@ public class ProdutoDomainService : BaseDomainService<Produto>, IProdutoDomainSe
                     continue;
                 }
 
+                var quantidadeImportada = estoqueAtual < 0 ? 0 : estoqueAtual;
+
                 produtoExistente.CodigoBarras = string.IsNullOrWhiteSpace(codigoBarras) ? produtoExistente.CodigoBarras : codigoBarras;
                 produtoExistente.Descricao = descricao;
                 produtoExistente.PrecoCusto = precoCusto;
                 produtoExistente.PrecoVenda = precoVenda;
-                produtoExistente.EstoqueAtual = estoqueAtual;
+                produtoExistente.EstoqueAtual += quantidadeImportada;
                 produtoExistente.DhExclusao = null;
 
                 serviceResponse.Dados.Add((await _produtoRepository.AtualizarProduto(produtoExistente)).ToDTO());
@@ -314,6 +316,23 @@ public class ProdutoDomainService : BaseDomainService<Produto>, IProdutoDomainSe
             return 0;
         }
 
-        return int.TryParse(valor.Trim(), out var numero) ? numero : 0;
+        var valorNormalizado = valor.Trim();
+
+        if (int.TryParse(valorNormalizado, out var numeroInteiro))
+        {
+            return numeroInteiro;
+        }
+
+        if (decimal.TryParse(valorNormalizado, NumberStyles.Any, new CultureInfo("pt-BR"), out var numeroDecimalPtBr))
+        {
+            return (int)Math.Truncate(numeroDecimalPtBr);
+        }
+
+        if (decimal.TryParse(valorNormalizado, NumberStyles.Any, CultureInfo.InvariantCulture, out var numeroDecimalInvariante))
+        {
+            return (int)Math.Truncate(numeroDecimalInvariante);
+        }
+
+        return 0;
     }
 }

@@ -176,7 +176,12 @@ export class ProdutoComponent implements OnInit {
     this.produtoService.listarProdutos()
       .subscribe({
         next: (dados) => {
-          this.listaProdutos = dados.dados || [];
+          this.listaProdutos = (dados.dados || []).map((produto) => ({
+            ...produto,
+            precoCusto: Number(produto.precoCusto ?? 0),
+            precoVenda: Number(produto.precoVenda ?? 0),
+            estoqueAtual: Number(produto.estoqueAtual ?? 0)
+          }));
         },
         error: () => {
           this.appMessageService.showError('Erro ao buscar produtos.');

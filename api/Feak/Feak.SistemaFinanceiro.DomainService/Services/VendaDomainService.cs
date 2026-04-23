@@ -22,14 +22,21 @@ public class VendaDomainService : BaseDomainService<Venda>, IVendaDomainService
     {
         var vendas = await _vendaRepository.ListarVendasAsync();
         var vendasFechadas = vendas
-            .Where(x => x.DhExclusao == null && !x.Cancelada)
+            .Where(x => x.DhExclusao == null)
             .OrderByDescending(x => x.DhInclusao)
             .Select(x => new RelatorioVendaExcelDTO
             {
+                NumeroVenda = x.NumeroVenda,
                 Operador = x.Operador,
+                Consumidor = x.Consumidor,
+                FormaPagamento = x.FormaPagamento,
+                Produtos = x.Itens.Count == 0
+                    ? "Sem itens"
+                    : string.Join(" | ", x.Itens.Select(item => $"{item.Quantidade}x {item.DescricaoProduto}")),
                 DataVenda = x.DhInclusao.ToLocalTime(),
                 Desconto = x.DescontoTotal,
-                ValorTotal = x.Total
+                ValorTotal = x.Total,
+                Status = x.Cancelada ? "Cancelada" : "Fechada"
             })
             .ToList();
 
