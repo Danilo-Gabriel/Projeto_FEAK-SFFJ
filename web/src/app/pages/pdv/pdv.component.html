@@ -16,7 +16,7 @@
 
   <div class="pdv-shell">
     <article class="pdv-editor" [formGroup]="pdvForm">
-      <div class="consumidor-box">
+      <div class="consumidor-box" (click)="abrirModalConsumidor()" style="cursor: pointer;">
         <i class="pi pi-user"></i>
         <span>{{ pdvForm.get('consumidor')?.value }} (Clique aqui para identificar)</span>
       </div>
@@ -168,3 +168,24 @@
     </article>
   </div>
 </section>
+
+<p-dialog [(visible)]="exibirModalConsumidor" [header]="'Identificar Consumidor'" [modal]="true" [style]="{width: '50vw'}" [breakpoints]="{'960px': '75vw', '640px': '90vw'}">
+  <div class="consumidor-form">
+    <div class="form-group">
+      <label for="nomeConsumidor">Nome do Consumidor</label>
+      <input 
+        id="nomeConsumidor" 
+        pInputText 
+        [(ngModel)]="consumidorEditando" 
+        placeholder="Digite o nome do consumidor" 
+        (keyup.enter)="salvarConsumidor()"
+        class="w-full"
+        autofocus />
+      <small class="info-text">Deixe em branco para usar 'CONSUMIDOR FINAL'</small>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" icon="pi pi-times" (click)="fecharModalConsumidor()" severity="secondary"></button>
+    <button pButton type="button" label="Salvar" icon="pi pi-check" (click)="salvarConsumidor()" severity="success"></button>
+  </ng-template>
+</p-dialog>

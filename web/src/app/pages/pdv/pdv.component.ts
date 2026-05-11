@@ -19,6 +19,8 @@ export class PdvComponent implements OnInit {
   public produtoSelecionado: ProdutoDTO | null = null;
   public salvandoVenda: boolean = false;
   public itemEmEdicaoId: string | null = null;
+  public exibirModalConsumidor: boolean = false;
+  public consumidorEditando: string = '';
   private origemDesconto: 'valor' | 'percentual' = 'valor';
   private readonly authSessionService = inject(AuthSessionService);
 
@@ -496,5 +498,24 @@ export class PdvComponent implements OnInit {
         this.messageService.showError('Não foi possível carregar o catálogo do PDV.');
       }
     });
+  }
+
+  abrirModalConsumidor(): void {
+    this.consumidorEditando = this.pdvForm.get('consumidor')?.value || '';
+    this.exibirModalConsumidor = true;
+  }
+
+  fecharModalConsumidor(): void {
+    this.exibirModalConsumidor = false;
+    this.consumidorEditando = '';
+  }
+
+  salvarConsumidor(): void {
+    const nomeConsumidor = this.consumidorEditando?.trim() || 'CONSUMIDOR FINAL';
+    this.pdvForm.patchValue({
+      consumidor: nomeConsumidor
+    }, { emitEvent: false });
+    this.messageService.showSuccess(`Consumidor alterado para: ${nomeConsumidor}`);
+    this.fecharModalConsumidor();
   }
 }
