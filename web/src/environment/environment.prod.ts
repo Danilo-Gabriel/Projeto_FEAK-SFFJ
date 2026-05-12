@@ -1,9 +1,9 @@
 export const environment = {
 
   production: true,
-  endPoint:"http://localhost:7000/api",
+  endPoint: `http://${window.location.hostname}:7000/api`,
   KEYCLOAK_REALM: "FEAK",
-  KEYCLOAK_URL: "http://localhost:8080/",
+  KEYCLOAK_URL: `http://${window.location.hostname}:8080/`,
   KEYCLOAK_CLIENT_ID: "client-feak"
 
 };

@@ -10,10 +10,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.SetIsOriginAllowed(origin =>
-            Uri.TryCreate(origin, UriKind.Absolute, out var uri)
-            && (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
-                || uri.Host.Equals("127.0.0.1")))
+        policy.AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -31,7 +28,7 @@ builder.Services.AddHttpLogging(options =>
         | HttpLoggingFields.Duration;
 });
 
-builder.WebHost.UseUrls("http://localhost:7000");
+builder.WebHost.UseUrls("http://0.0.0.0:7000");
 
 builder.Services.AddSwaggerGen(c =>
 {
