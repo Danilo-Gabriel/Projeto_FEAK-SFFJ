@@ -71,7 +71,7 @@ export class RelatorioComponent implements OnInit {
   }
 
   gerarRecibo(venda: VendaDTO): void {
-    const janelaRecibo = window.open('', '_blank', 'width=420,height=760');
+    const janelaRecibo = window.open('', '_blank', 'width=320,height=600');
 
     if (!janelaRecibo) {
       this.messageService.showError('Não foi possível abrir o recibo. Verifique se o bloqueador de pop-up está desativado.');
@@ -79,14 +79,22 @@ export class RelatorioComponent implements OnInit {
     }
 
     const itensHtml = venda.itens.length
-      ? venda.itens.map((item) => `
-          <tr>
-            <td>${item.quantidade}x</td>
-            <td>${item.descricaoProduto}</td>
-            <td>${this.formatarMoeda(item.precoUnitario)}</td>
-            <td>${this.formatarMoeda(item.totalItem)}</td>
-          </tr>
-        `).join('')
+      ? venda.itens.flatMap((item) => {
+          const linhas: string[] = [];
+
+          for (let i = 0; i < item.quantidade; i++) {
+            linhas.push(`
+              <tr>
+                <td>1x</td>
+                <td>[ ] ${item.descricaoProduto}</td>
+                <td>${this.formatarMoeda(item.precoUnitario)}</td>
+                <td>${this.formatarMoeda(item.precoUnitario)}</td>
+              </tr>
+            `);
+          }
+
+          return linhas;
+        }).join('')
       : `
           <tr>
             <td colspan="4">Nenhum item encontrado.</td>
@@ -100,23 +108,148 @@ export class RelatorioComponent implements OnInit {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Recibo ${venda.numeroVenda}</title>
-        <style>
-          body { font-family: Arial, sans-serif; color: #0f172a; margin: 16px; }
-          .topo { text-align: center; margin-bottom: 16px; }
-          .topo h1 { font-size: 18px; margin: 0; }
-          .topo p { margin: 4px 0 0; font-size: 12px; color: #475569; }
-          .bloco { margin-bottom: 14px; }
-          .linha { display: flex; justify-content: space-between; font-size: 12px; margin: 4px 0; gap: 12px; }
-          .linha strong { font-size: 13px; }
-          table { width: 100%; border-collapse: collapse; font-size: 12px; }
-          th, td { border-bottom: 1px solid #cbd5e1; padding: 6px 4px; text-align: left; }
-          th { background: #f8fafc; }
-          .totais { margin-top: 14px; border-top: 1px dashed #64748b; padding-top: 10px; }
-          .status { display: inline-block; padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: bold; }
-          .status.fechada { background: #dcfce7; color: #166534; }
-          .status.cancelada { background: #fee2e2; color: #991b1b; }
-          @media print { .print-action { display: none; } body { margin: 0; } }
-        </style>
+       <style>
+
+  *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+  }
+
+  html,
+  body{
+    width:72mm;
+    font-family: monospace;
+    font-size:10px;
+    line-height:1.1;
+    color:#000;
+  }
+
+  body{
+    padding:2mm;
+  }
+
+  .topo{
+    text-align:center;
+    margin-bottom:4px;
+  }
+
+  .topo h1{
+    font-size:13px;
+    margin:0;
+  }
+
+  .topo p{
+    font-size:10px;
+    margin:1px 0 0;
+  }
+
+  .bloco{
+    margin-bottom:4px;
+  }
+
+  .linha{
+    display:flex;
+    justify-content:space-between;
+    gap:4px;
+    margin:1px 0;
+  }
+
+  .linha strong{
+    font-size:10px;
+  }
+
+  .separador{
+    border-top:1px dashed #000;
+    margin:4px 0;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-size:10px;
+  }
+
+  th{
+    text-align:left;
+    border-bottom:1px dashed #000;
+    padding-bottom:2px;
+    font-size:10px;
+  }
+
+  td{
+    padding:1px 0;
+    vertical-align:top;
+    word-break:break-word;
+  }
+
+  .itens td{
+    padding:3px 0;
+    font-size:11px;
+    line-height:1.35;
+  }
+
+  .itens tr + tr td{
+    padding-top:4px;
+  }
+
+  .itens th:nth-child(1),
+  .itens td:nth-child(1){
+    width:10%;
+  }
+
+  .itens th:nth-child(2),
+  .itens td:nth-child(2){
+    width:52%;
+  }
+
+  .itens th:nth-child(3),
+  .itens td:nth-child(3){
+    width:18%;
+    text-align:right;
+  }
+
+  .itens th:nth-child(4),
+  .itens td:nth-child(4){
+    width:20%;
+    text-align:right;
+  }
+
+  .totais{
+    margin-top:3px;
+  }
+
+  .total-geral{
+    font-size:12px;
+    font-weight:bold;
+  }
+
+  .rodape{
+    text-align:center;
+    margin-top:5px;
+    font-size:10px;
+  }
+
+  .print-action{
+    display:none;
+  }
+
+  @media print{
+
+    html,
+    body{
+      width:72mm;
+    }
+
+    @page{
+      size:80mm auto;
+      margin:0;
+    }
+
+  }
+
+</style>
       </head>
       <body>
         <div class="topo">
@@ -156,7 +289,13 @@ export class RelatorioComponent implements OnInit {
           <div class="linha"><span>Total</span><strong>${this.formatarMoeda(venda.total)}</strong></div>
         </div>
 
-        <button class="print-action" onclick="window.print()" style="width:100%;margin-top:16px;padding:10px;border:0;border-radius:8px;background:#1d4ed8;color:#fff;font-weight:700;cursor:pointer;">Imprimir recibo</button>
+       <script>
+  window.onload = () => {
+    setTimeout(() => {
+      window.print();
+    }, 200);
+  };
+</script>
       </body>
       </html>
     `;

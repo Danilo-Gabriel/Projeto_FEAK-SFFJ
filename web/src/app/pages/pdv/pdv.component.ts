@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProdutoDTO } from '../../models/dto/produto-dto';
 import { PdvItemDTO } from '../../models/dto/pdv-item-dto';
+import { VendaDTO } from '../../models/dto/venda-dto';
 import { RegistrarVendaRequest } from '../../models/request/registrar-venda-request';
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { AppMessageService } from '../../shared/services/app-message.service';
@@ -356,6 +357,7 @@ export class PdvComponent implements OnInit {
           return;
         }
 
+        this.imprimirReciboVenda(response.dados);
         this.messageService.showSuccess(`Venda ${response.dados.numeroVenda} registrada com sucesso.`);
         this.itensVenda = [];
         this.cancelarDigitacao();
@@ -517,5 +519,229 @@ export class PdvComponent implements OnInit {
     }, { emitEvent: false });
     this.messageService.showSuccess(`Consumidor alterado para: ${nomeConsumidor}`);
     this.fecharModalConsumidor();
+  }
+
+  private imprimirReciboVenda(venda: VendaDTO): void {
+    const janelaRecibo = window.open('', '_blank', 'width=320,height=600');
+
+    if (!janelaRecibo) {
+      this.messageService.showWarn('Venda registrada, mas não foi possível abrir a impressão automática.');
+      return;
+    }
+
+    const itensHtml = venda.itens.length
+      ? venda.itens.flatMap((item) => {
+          const linhas: string[] = [];
+          for (let i = 0; i < item.quantidade; i++) {
+            linhas.push(`
+              <tr>
+                <td>1x</td>
+                <td>[ ] ${item.descricaoProduto}</td>
+                <td>${this.formatarMoedaRecibo(item.precoUnitario)}</td>
+                <td>${this.formatarMoedaRecibo(item.precoUnitario)}</td>
+              </tr>
+            `);
+          }
+          return linhas;
+        }).join('')
+      : `
+          <tr>
+            <td colspan="4">Nenhum item encontrado.</td>
+          </tr>
+        `;
+
+    const reciboHtml = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Recibo ${venda.numeroVenda}</title>
+       <style>
+
+  *{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+  }
+
+  html,
+  body{
+    width:72mm;
+    font-family: monospace;
+    font-size:10px;
+    line-height:1.1;
+    color:#000;
+  }
+
+  body{
+    padding:2mm;
+  }
+
+  .topo{
+    text-align:center;
+    margin-bottom:4px;
+  }
+
+  .topo h1{
+    font-size:13px;
+    margin:0;
+  }
+
+  .topo p{
+    font-size:10px;
+    margin:1px 0 0;
+  }
+
+  .bloco{
+    margin-bottom:4px;
+  }
+
+  .linha{
+    display:flex;
+    justify-content:space-between;
+    gap:4px;
+    margin:1px 0;
+  }
+
+  .linha strong{
+    font-size:10px;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+    font-size:10px;
+  }
+
+  th{
+    text-align:left;
+    border-bottom:1px dashed #000;
+    padding-bottom:2px;
+    font-size:10px;
+  }
+
+  td{
+    padding:1px 0;
+    vertical-align:top;
+    word-break:break-word;
+  }
+
+  .itens td{
+    padding:3px 0;
+    font-size:11px;
+    line-height:1.35;
+  }
+
+  .itens tr + tr td{
+    padding-top:4px;
+  }
+
+  .itens th:nth-child(1),
+  .itens td:nth-child(1){
+    width:10%;
+  }
+
+  .itens th:nth-child(2),
+  .itens td:nth-child(2){
+    width:52%;
+  }
+
+  .itens th:nth-child(3),
+  .itens td:nth-child(3){
+    width:18%;
+    text-align:right;
+  }
+
+  .itens th:nth-child(4),
+  .itens td:nth-child(4){
+    width:20%;
+    text-align:right;
+  }
+
+  .totais{
+    margin-top:3px;
+  }
+
+  @media print{
+
+    html,
+    body{
+      width:72mm;
+    }
+
+    @page{
+      size:80mm auto;
+      margin:0;
+    }
+
+  }
+
+</style>
+      </head>
+      <body>
+        <div class="topo">
+          <h1>Recibo de Venda</h1>
+          <p>FEAK - Sistema Financeiro</p>
+        </div>
+
+        <div class="bloco">
+          <div class="linha"><span>Venda</span><strong>${venda.numeroVenda}</strong></div>
+          <div class="linha"><span>Data</span><strong>${this.formatarDataRecibo(venda.dhInclusao)}</strong></div>
+          <div class="linha"><span>Operador</span><strong>${venda.operador || '-'}</strong></div>
+          <div class="linha"><span>Consumidor</span><strong>${venda.consumidor || '-'}</strong></div>
+          <div class="linha"><span>Pagamento</span><strong>${venda.formaPagamento || '-'}</strong></div>
+          <div class="linha"><span>Status</span><span>${venda.cancelada ? 'Cancelada' : 'Fechada'}</span></div>
+        </div>
+
+        <div class="bloco">
+          <table class="itens">
+            <thead>
+              <tr>
+                <th>Qtd</th>
+                <th>Produto</th>
+                <th>Unit.</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itensHtml}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="totais">
+          <div class="linha"><span>Subtotal</span><strong>${this.formatarMoedaRecibo(venda.subtotal)}</strong></div>
+          <div class="linha"><span>Desconto</span><strong>${this.formatarMoedaRecibo(venda.descontoTotal)}</strong></div>
+          <div class="linha"><span>Acréscimo</span><strong>${this.formatarMoedaRecibo(venda.acrescimo)}</strong></div>
+          <div class="linha"><span>Total</span><strong>${this.formatarMoedaRecibo(venda.total)}</strong></div>
+        </div>
+
+       <script>
+  window.onload = () => {
+    setTimeout(() => {
+      window.print();
+    }, 200);
+  };
+</script>
+      </body>
+      </html>
+    `;
+
+    janelaRecibo.document.open();
+    janelaRecibo.document.write(reciboHtml);
+    janelaRecibo.document.close();
+  }
+
+  private formatarMoedaRecibo(valor: number): string {
+    return Number(valor ?? 0).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  }
+
+  private formatarDataRecibo(data: Date | string): string {
+    return new Date(data).toLocaleString('pt-BR');
   }
 }
