@@ -118,7 +118,6 @@ export class RelatorioComponent implements OnInit {
 
   html,
   body{
-    width:72mm;
     font-family: monospace;
     font-size:10px;
     line-height:1.1;
@@ -262,16 +261,14 @@ export class RelatorioComponent implements OnInit {
           <div class="linha"><span>Data</span><strong>${this.formatarData(venda.dhInclusao)}</strong></div>
           <div class="linha"><span>Operador</span><strong>${venda.operador || '-'}</strong></div>
           <div class="linha"><span>Consumidor</span><strong>${venda.consumidor || '-'}</strong></div>
-          <div class="linha"><span>Pagamento</span><strong>${venda.formaPagamento || '-'}</strong></div>
-          <div class="linha"><span>Status</span><span class="status ${venda.cancelada ? 'cancelada' : 'fechada'}">${venda.cancelada ? 'Cancelada' : 'Fechada'}</span></div>
         </div>
 
         <div class="bloco">
           <table>
             <thead>
               <tr>
-                <th>Qtd</th>
-                <th>Produto</th>
+                <th style="width:10%">Qtd</th>
+                <th style="width:40%">Produto</th>
                 <th>Unit.</th>
                 <th>Total</th>
               </tr>

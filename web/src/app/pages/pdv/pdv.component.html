@@ -15,13 +15,13 @@
   </div>
 
   <div class="pdv-shell">
-    <article class="pdv-editor" [formGroup]="pdvForm">
+    <form class="pdv-editor" [formGroup]="pdvForm" (ngSubmit)="onEditorSubmit($event)">
       <div class="consumidor-box" (click)="abrirModalConsumidor()" style="cursor: pointer;">
         <i class="pi pi-user"></i>
         <span>{{ pdvForm.get('consumidor')?.value }} (Clique aqui para identificar)</span>
       </div>
 
-      <div class="form-row form-row-full">
+      <div *ngIf="pdvForm.get('inclusaoAutomatica')?.value" class="form-row form-row-full">
         <label for="codigoBarras">CÓDIGO BARRAS</label>
         <input id="codigoBarras" pInputText formControlName="codigoBarras" placeholder="Leia ou informe o código de barras" (keyup.enter)="pesquisarPorCodigoBarras()" (blur)="pesquisarPorCodigoBarras()" />
       </div>
@@ -109,7 +109,7 @@
         <button pButton type="button" label="Cancelar" icon="pi pi-times-circle" severity="secondary" (click)="cancelarDigitacao()"></button>
         <button pButton type="button" label="Finalizar venda" icon="pi pi-check" severity="success" [loading]="salvandoVenda" (click)="finalizarVenda()"></button>
       </div>
-    </article>
+    </form>
 
     <article class="pdv-lista">
       <div class="lista-header">

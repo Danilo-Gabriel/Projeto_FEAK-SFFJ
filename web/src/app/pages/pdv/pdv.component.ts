@@ -90,12 +90,17 @@ export class PdvComponent implements OnInit {
     }
 
     this.pdvForm.patchValue({
+      produtoId: produto.id,
       codigoBarras: produto.codigoBarras,
       valorUnitario: produto.precoVenda,
       quantidade: 1,
       descontoValor: 0,
       descontoPercentual: 0
     }, { emitEvent: false });
+
+    if (this.pdvForm.get('inclusaoAutomatica')?.value) {
+      this.adicionarItem();
+    }
   }
 
   adicionarItem(): void {
@@ -171,13 +176,23 @@ export class PdvComponent implements OnInit {
       const novoDescontoValor = Number(((itemExistente.descontoValor ?? 0) + descontoValor).toFixed(2));
       const novoSubtotalBruto = novaQuantidade * valorUnitario;
 
-      itemExistente.quantidade += quantidade;
-      itemExistente.precoUnitario = valorUnitario;
-      itemExistente.descontoValor = novoDescontoValor;
-      itemExistente.descontoPercentual = novoSubtotalBruto > 0
-        ? Number(((novoDescontoValor / novoSubtotalBruto) * 100).toFixed(2))
-        : 0;
-      itemExistente.codigo = produto.codigoBarras;
+      this.itensVenda = this.itensVenda.map((item) => {
+        if (item.id !== itemExistente.id) {
+          return item;
+        }
+
+        return {
+          ...item,
+          quantidade: novaQuantidade,
+          precoUnitario: valorUnitario,
+          descontoValor: novoDescontoValor,
+          descontoPercentual: novoSubtotalBruto > 0
+            ? Number(((novoDescontoValor / novoSubtotalBruto) * 100).toFixed(2))
+            : 0,
+          codigo: produto.codigoBarras
+        };
+      });
+
       this.cancelarDigitacao(false);
       return;
     }
@@ -423,6 +438,24 @@ export class PdvComponent implements OnInit {
     this.pdvForm.get('valorUnitario')?.valueChanges.subscribe(() => {
       this.atualizarDescontoAtivo();
     });
+  }
+
+  onEditorSubmit(event: Event): void {
+    event.preventDefault();
+
+    const codigoBarrasAtivo = document.activeElement instanceof HTMLElement && document.activeElement.id === 'codigoBarras';
+    if (codigoBarrasAtivo) {
+      return;
+    }
+
+    const produtoId = this.pdvForm.get('produtoId')?.value;
+    if (!produtoId) {
+      return;
+    }
+
+    if (this.itemEmEdicaoId || this.pdvForm.get('inclusaoAutomatica')?.value) {
+      this.adicionarItem();
+    }
   }
 
   private obterSubtotalBrutoDigitado(): number {

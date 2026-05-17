@@ -60,8 +60,8 @@
           <th pSortableColumn="numeroVenda">Venda <p-sortIcon field="numeroVenda" /></th>
           <th pSortableColumn="operador">Operador <p-sortIcon field="operador" /></th>
           <th pSortableColumn="consumidor">Consumidor <p-sortIcon field="consumidor" /></th>
-          <th>Itens</th>
-          <th pSortableColumn="formaPagamento">Pagamento <p-sortIcon field="formaPagamento" /></th>
+          <!-- <th>Itens</th> -->
+          <!-- <th pSortableColumn="formaPagamento">Pagamento <p-sortIcon field="formaPagamento" /></th> -->
           <th>Produtos da venda</th>
           <th pSortableColumn="total">Total <p-sortIcon field="total" /></th>
           <th pSortableColumn="dhInclusao">Fechamento <p-sortIcon field="dhInclusao" /></th>
@@ -75,8 +75,8 @@
           <td>{{ venda.numeroVenda }}</td>
           <td>{{ venda.operador }}</td>
           <td>{{ venda.consumidor }}</td>
-          <td>{{ obterQuantidadeItens(venda) }}</td>
-          <td>{{ venda.formaPagamento }}</td>
+          <!-- <td>{{ obterQuantidadeItens(venda) }}</td> -->
+          <!-- <td>{{ venda.formaPagamento }}</td> -->
           <td class="itens-venda">{{ obterResumoItens(venda) }}</td>
           <td>{{ venda.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
           <td>{{ venda.dhInclusao | date:'dd/MM/yyyy HH:mm' }}</td>
