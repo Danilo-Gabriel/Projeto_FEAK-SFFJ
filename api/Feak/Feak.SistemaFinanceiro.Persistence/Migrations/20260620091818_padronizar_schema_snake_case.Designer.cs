@@ -3,6 +3,7 @@ using System;
 using Feak.SistemaFinanceiro.Persistencia.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Feak.SistemaFinanceiro.Persistencia.Migrations
 {
     [DbContext(typeof(ApplicationDbcontext))]
-    partial class ApplicationDbcontextModelSnapshot : ModelSnapshot
+    [Migration("20260620091818_padronizar_schema_snake_case")]
+    partial class padronizar_schema_snake_case
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,8 +24,6 @@ namespace Feak.SistemaFinanceiro.Persistencia.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.HasSequence("numero_venda_seq", "feak_sf");
 
             modelBuilder.Entity("DomainService.Entities.Produto", b =>
                 {
@@ -170,9 +171,6 @@ namespace Feak.SistemaFinanceiro.Persistencia.Migrations
                         .HasColumnName("total");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NumeroVenda")
-                        .IsUnique();
 
                     b.ToTable("vendas", (string)null);
                 });

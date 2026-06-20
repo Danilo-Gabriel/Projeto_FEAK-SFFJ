@@ -18,6 +18,17 @@ public class ApplicationDbcontext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Usuario>().ToTable("usuarios");
+        modelBuilder.Entity<Produto>().ToTable("produtos");
+        modelBuilder.Entity<Venda>().ToTable("vendas");
+        modelBuilder.Entity<VendaItem>().ToTable("venda_itens");
+
+        modelBuilder.HasSequence<long>("numero_venda_seq", "feak_sf");
+
+        modelBuilder.Entity<Venda>()
+            .HasIndex(x => x.NumeroVenda)
+            .IsUnique();
+
         modelBuilder.Entity<Produto>()
             .HasIndex(x => x.CodigoBarras)
             .IsUnique();

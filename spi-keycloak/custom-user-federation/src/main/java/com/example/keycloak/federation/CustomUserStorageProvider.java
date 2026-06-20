@@ -59,7 +59,8 @@ public class CustomUserStorageProvider
     @Override
     public UserModel getUserByUsername(RealmModel realm, String username) {
 
-        String sqlUser = "SELECT \"Id\" as id, nome_login, nome_completo FROM \"Usuarios\" WHERE nome_login = ?";
+        String sqlUser = "SELECT id, nome_login, nome_completo FROM usuarios "
+                + "WHERE nome_login = ? AND dh_exclusao IS NULL";
 
         try (Connection conn = getConnection();
                 PreparedStatement pUser = conn.prepareStatement(sqlUser)) {
@@ -87,7 +88,8 @@ public class CustomUserStorageProvider
     @Override
     public UserModel getUserByEmail(RealmModel realm, String email) {
 
-        String sqlUser = "SELECT \"Id\" as id, nome_login, nome_completo FROM \"Usuarios\" WHERE nome_login = ?";
+        String sqlUser = "SELECT id, nome_login, nome_completo FROM usuarios "
+                + "WHERE nome_login = ? AND dh_exclusao IS NULL";
 
         try (Connection conn = getConnection();
                 PreparedStatement pUser = conn.prepareStatement(sqlUser)) {
@@ -123,7 +125,8 @@ public class CustomUserStorageProvider
         StorageId storageId = new StorageId(id);
         String externalId = storageId.getExternalId();
 
-        String sqlUser = "SELECT \"Id\" as id, nome_login, nome_completo FROM \"Usuarios\" WHERE \"Id\"::text = ?";
+        String sqlUser = "SELECT id, nome_login, nome_completo FROM usuarios "
+                + "WHERE id::text = ? AND dh_exclusao IS NULL";
 
         try (Connection conn = getConnection();
                 PreparedStatement pUser = conn.prepareStatement(sqlUser)) {
@@ -170,7 +173,8 @@ public class CustomUserStorageProvider
         String id = storageId.getExternalId();
 
         try (Connection conn = getConnection();
-            PreparedStatement stmt = conn.prepareStatement("SELECT senha FROM \"Usuarios\" WHERE \"Id\"::text = ?")) {
+            PreparedStatement stmt = conn.prepareStatement(
+                    "SELECT senha FROM usuarios WHERE id::text = ? AND dh_exclusao IS NULL")) {
             stmt.setString(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -313,8 +317,9 @@ public class CustomUserStorageProvider
         List<UserModel> users = new ArrayList<>();
 
         try (Connection conn = getConnection()) {
-                String sql = "SELECT \"Id\" as id, nome_login, nome_completo FROM \"Usuarios\" " +
-                    "WHERE nome_login ILIKE ? OR nome_completo ILIKE ? " +
+                String sql = "SELECT id, nome_login, nome_completo FROM usuarios " +
+                    "WHERE dh_exclusao IS NULL " +
+                    "AND (nome_login ILIKE ? OR nome_completo ILIKE ?) " +
                     "ORDER BY nome_completo LIMIT ? OFFSET ?";
 
             PreparedStatement stmt = conn.prepareStatement(sql);
@@ -348,7 +353,7 @@ public class CustomUserStorageProvider
     @Override
     public int getUsersCount(RealmModel realm) {
 
-        String sql = "SELECT COUNT(*) FROM \"Usuarios\"";
+        String sql = "SELECT COUNT(*) FROM usuarios WHERE dh_exclusao IS NULL";
 
         try (Connection conn = getConnection()) {
             PreparedStatement st = conn.prepareStatement(sql);

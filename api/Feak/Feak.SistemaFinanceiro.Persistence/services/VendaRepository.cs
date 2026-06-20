@@ -13,16 +13,9 @@ public class VendaRepository : BaseRepository<Venda>, IVendaRepository
 
     public async Task<string> GerarNumeroVendaAsync()
     {
-        var ultimaVenda = await _context.Vendas
-            .OrderByDescending(x => x.DhInclusao)
-            .Select(x => x.NumeroVenda)
-            .FirstOrDefaultAsync();
-
-        var sequencia = 1;
-        if (!string.IsNullOrWhiteSpace(ultimaVenda) && int.TryParse(ultimaVenda.Replace("VD", string.Empty), out var numeroAtual))
-        {
-            sequencia = numeroAtual + 1;
-        }
+        var sequencia = await _context.Database
+            .SqlQueryRaw<long>("SELECT nextval('feak_sf.numero_venda_seq') AS \"Value\"")
+            .SingleAsync();
 
         return $"VD{sequencia:000000}";
     }

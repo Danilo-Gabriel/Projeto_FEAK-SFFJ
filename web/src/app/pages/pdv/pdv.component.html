@@ -3,8 +3,8 @@
 <section class="pdv-page">
   <div class="pdv-header">
     <div>
-      <span class="eyebrow">Vendas > PDV > Digitação</span>
-      <h1>PDV</h1>
+      <span class="eyebrow">Vendas &gt; <span class="notranslate" translate="no">PDV</span> &gt; Digitação</span>
+      <h1 class="notranslate" translate="no">PDV</h1>
       <p>Selecione produtos importados do estoque e monte a lista de itens no formato clássico de caixa.</p>
     </div>
 
@@ -15,7 +15,7 @@
   </div>
 
   <div class="pdv-shell">
-    <form class="pdv-editor" [formGroup]="pdvForm" (ngSubmit)="onEditorSubmit($event)">
+    <form class="pdv-editor" [formGroup]="pdvForm" (ngSubmit)="onEditorSubmit($event)" (keydown.enter)="onEditorEnter($event)">
       <div class="consumidor-box" (click)="abrirModalConsumidor()" style="cursor: pointer;">
         <i class="pi pi-user"></i>
         <span>{{ pdvForm.get('consumidor')?.value }} (Clique aqui para identificar)</span>
@@ -23,7 +23,7 @@
 
       <div *ngIf="pdvForm.get('inclusaoAutomatica')?.value" class="form-row form-row-full">
         <label for="codigoBarras">CÓDIGO BARRAS</label>
-        <input id="codigoBarras" pInputText formControlName="codigoBarras" placeholder="Leia ou informe o código de barras" (keyup.enter)="pesquisarPorCodigoBarras()" (blur)="pesquisarPorCodigoBarras()" />
+        <input id="codigoBarras" pInputText formControlName="codigoBarras" placeholder="Leia ou informe o código de barras" (blur)="pesquisarPorCodigoBarras()" />
       </div>
 
       <div class="form-row form-row-full">
@@ -36,6 +36,8 @@
           optionLabel="descricao"
           optionValue="id"
           [filter]="true"
+          emptyMessage="Nenhum produto cadastrado."
+          emptyFilterMessage="Produto não encontrado."
           filterBy="codigoBarras,descricao,id"
           filterPlaceholder="Filtrar produto"
           [showClear]="true"
@@ -85,17 +87,17 @@
 
         <div class="metric-field">
           <label for="valorUnitario">VLR UNITÁRIO</label>
-          <input id="valorUnitario" pInputText type="number" min="0" step="0.01" formControlName="valorUnitario" />
+          <input id="valorUnitario" pInputText type="text" inputmode="decimal" formControlName="valorUnitario" />
         </div>
 
         <div class="metric-field">
           <label for="descontoValor">DESCONTO</label>
-          <input id="descontoValor" pInputText type="number" min="0" step="0.01" formControlName="descontoValor" />
+          <input id="descontoValor" pInputText type="text" inputmode="decimal" formControlName="descontoValor" />
         </div>
 
         <div class="metric-field">
           <label for="descontoPercentual">% DESCONTO</label>
-          <input id="descontoPercentual" pInputText type="number" min="0" step="0.01" formControlName="descontoPercentual" />
+          <input id="descontoPercentual" pInputText type="text" inputmode="decimal" formControlName="descontoPercentual" />
         </div>
 
         <div class="metric-field total-highlight">
@@ -105,7 +107,7 @@
       </div>
 
       <div class="editor-actions">
-        <button pButton type="button" [label]="emEdicao ? 'Salvar edição' : 'Adicionar'" [icon]="emEdicao ? 'pi pi-check' : 'pi pi-plus'" severity="info" (click)="adicionarItem()"></button>
+        <button pButton type="submit" [label]="emEdicao ? 'Salvar edição' : 'Adicionar'" [icon]="emEdicao ? 'pi pi-check' : 'pi pi-plus'" severity="info"></button>
         <button pButton type="button" label="Cancelar" icon="pi pi-times-circle" severity="secondary" (click)="cancelarDigitacao()"></button>
         <button pButton type="button" label="Finalizar venda" icon="pi pi-check" severity="success" [loading]="salvandoVenda" (click)="finalizarVenda()"></button>
       </div>

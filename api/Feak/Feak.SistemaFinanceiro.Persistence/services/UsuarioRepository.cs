@@ -20,13 +20,16 @@ public class UsuarioRepository : BaseRepository<Usuario>, IUsuarioRepository
     
     public async  Task<List<Usuario>> ObterUsuarios()
     {
-        return await _context.Usuarios.ToListAsync();
+        return await _context.Usuarios
+            .Where(x => !x.DhExclusao.HasValue)
+            .ToListAsync();
     }
 
-    public async Task<Usuario?> GetByNomeLoginAsync(string NomeLogin)
+    public async Task<Usuario?> GetByNomeLoginAsync(string nomeLogin)
     {
         return await _context.Usuarios
-            .FirstOrDefaultAsync(u => u.NomeLogin == NomeLogin);
+            .Where(x => x.NomeLogin == nomeLogin)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<Usuario> inativarUsuario(Guid id)

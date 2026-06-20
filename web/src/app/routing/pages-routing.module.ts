@@ -16,7 +16,6 @@ const routes: Routes = [
     { path: 'pdv', component: PdvComponent},
     { path: 'usuario', component: UsuarioComponent},
     { path: 'produto', component: ProdutoComponent},
-    { path: 'estoque', component: ProdutoComponent},
     { path: 'relatorio', component: RelatorioComponent},
 
     ]

@@ -61,8 +61,8 @@ export class PdvComponent implements OnInit {
   }
 
   get totalItemDigitado(): number {
-    const quantidade = Number(this.pdvForm.get('quantidade')?.value ?? 0);
-    const valorUnitario = Number(this.pdvForm.get('valorUnitario')?.value ?? 0);
+    const quantidade = this.converterNumero(this.pdvForm.get('quantidade')?.value);
+    const valorUnitario = this.converterNumero(this.pdvForm.get('valorUnitario')?.value);
 
     const subtotal = quantidade * valorUnitario;
     const descontoAplicado = this.obterDescontoDigitadoValor();
@@ -112,8 +112,8 @@ export class PdvComponent implements OnInit {
       return;
     }
 
-    const quantidade = Number(this.pdvForm.get('quantidade')?.value ?? 0);
-    const valorUnitario = Number(this.pdvForm.get('valorUnitario')?.value ?? 0);
+    const quantidade = this.converterNumero(this.pdvForm.get('quantidade')?.value);
+    const valorUnitario = this.converterNumero(this.pdvForm.get('valorUnitario')?.value);
     const descontoValor = this.obterDescontoDigitadoValor();
     const descontoPercentual = this.obterDescontoPercentualDigitado();
 
@@ -270,7 +270,7 @@ export class PdvComponent implements OnInit {
     }, { emitEvent: false });
   }
 
-  pesquisarPorCodigoBarras(): void {
+  pesquisarPorCodigoBarras(adicionarAposPesquisa: boolean = false): void {
     const codigoBarras = this.pdvForm.get('codigoBarras')?.value?.toString().trim();
     const buscaReferencia = !!this.pdvForm.get('buscaReferencia')?.value;
     const inclusaoAutomatica = !!this.pdvForm.get('inclusaoAutomatica')?.value;
@@ -303,7 +303,7 @@ export class PdvComponent implements OnInit {
       this.pdvForm.patchValue({ produtoId: produto.id }, { emitEvent: false });
       this.onProdutoSelecionado(produto.id);
 
-      if (inclusaoAutomatica) {
+      if (adicionarAposPesquisa && !inclusaoAutomatica) {
         this.adicionarItem();
       }
 
@@ -423,12 +423,12 @@ export class PdvComponent implements OnInit {
   private configurarSincronizacaoDescontos(): void {
     this.pdvForm.get('descontoPercentual')?.valueChanges.subscribe((value) => {
       this.origemDesconto = 'percentual';
-      this.atualizarDescontoPorPercentual(Number(value ?? 0));
+      this.atualizarDescontoPorPercentual(this.converterNumero(value));
     });
 
     this.pdvForm.get('descontoValor')?.valueChanges.subscribe((value) => {
       this.origemDesconto = 'valor';
-      this.atualizarDescontoPorValor(Number(value ?? 0));
+      this.atualizarDescontoPorValor(this.converterNumero(value));
     });
 
     this.pdvForm.get('quantidade')?.valueChanges.subscribe(() => {
@@ -443,30 +443,43 @@ export class PdvComponent implements OnInit {
   onEditorSubmit(event: Event): void {
     event.preventDefault();
 
-    const codigoBarrasAtivo = document.activeElement instanceof HTMLElement && document.activeElement.id === 'codigoBarras';
-    if (codigoBarrasAtivo) {
-      return;
-    }
-
     const produtoId = this.pdvForm.get('produtoId')?.value;
     if (!produtoId) {
       return;
     }
 
-    if (this.itemEmEdicaoId || this.pdvForm.get('inclusaoAutomatica')?.value) {
-      this.adicionarItem();
+    this.adicionarItem();
+  }
+
+  onEditorEnter(event: Event): void {
+    const campo = event.target as HTMLElement | null;
+    if (campo?.closest('button')) {
+      return;
     }
+
+    event.preventDefault();
+
+    if (campo?.id === 'codigoBarras') {
+      this.pesquisarPorCodigoBarras(true);
+      return;
+    }
+
+    if (!this.pdvForm.get('produtoId')?.value) {
+      return;
+    }
+
+    this.adicionarItem();
   }
 
   private obterSubtotalBrutoDigitado(): number {
-    const quantidade = Number(this.pdvForm.get('quantidade')?.value ?? 0);
-    const valorUnitario = Number(this.pdvForm.get('valorUnitario')?.value ?? 0);
+    const quantidade = this.converterNumero(this.pdvForm.get('quantidade')?.value);
+    const valorUnitario = this.converterNumero(this.pdvForm.get('valorUnitario')?.value);
     return quantidade * valorUnitario;
   }
 
   private obterDescontoDigitadoValor(): number {
     const subtotal = this.obterSubtotalBrutoDigitado();
-    const descontoValor = Number(this.pdvForm.get('descontoValor')?.value ?? 0);
+    const descontoValor = this.converterNumero(this.pdvForm.get('descontoValor')?.value);
     return this.normalizarDesconto(descontoValor, subtotal);
   }
 
@@ -478,12 +491,12 @@ export class PdvComponent implements OnInit {
 
   private atualizarDescontoAtivo(): void {
     if (this.origemDesconto === 'percentual') {
-      const percentual = Number(this.pdvForm.get('descontoPercentual')?.value ?? 0);
+      const percentual = this.converterNumero(this.pdvForm.get('descontoPercentual')?.value);
       this.atualizarDescontoPorPercentual(percentual);
       return;
     }
 
-    const descontoValor = Number(this.pdvForm.get('descontoValor')?.value ?? 0);
+    const descontoValor = this.converterNumero(this.pdvForm.get('descontoValor')?.value);
     this.atualizarDescontoPorValor(descontoValor);
   }
 
@@ -521,6 +534,27 @@ export class PdvComponent implements OnInit {
     }
 
     return Number(Math.min(descontoInformado, subtotal).toFixed(2));
+  }
+
+  private converterNumero(valor: unknown): number {
+    if (typeof valor === 'number') {
+      return Number.isFinite(valor) ? valor : 0;
+    }
+
+    if (typeof valor !== 'string') {
+      return 0;
+    }
+
+    const texto = valor.trim();
+    if (!texto) {
+      return 0;
+    }
+
+    const normalizado = texto.includes(',')
+      ? texto.replace(/\./g, '').replace(',', '.')
+      : texto;
+    const numero = Number(normalizado);
+    return Number.isFinite(numero) ? numero : 0;
   }
 
   private carregarProdutos(): void {
