@@ -13,6 +13,7 @@ public class ApplicationDbcontext : DbContext
     public DbSet<Produto> Produtos { get; set; }
     public DbSet<Venda> Vendas { get; set; }
     public DbSet<VendaItem> VendaItens { get; set; }
+    public DbSet<ConsumidorFinal> ConsumidoresFinais { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +23,15 @@ public class ApplicationDbcontext : DbContext
         modelBuilder.Entity<Produto>().ToTable("produtos");
         modelBuilder.Entity<Venda>().ToTable("vendas");
         modelBuilder.Entity<VendaItem>().ToTable("venda_itens");
+        modelBuilder.Entity<ConsumidorFinal>().ToTable("consumidores_finais");
+
+        modelBuilder.Entity<ConsumidorFinal>()
+            .Property(x => x.Nome)
+            .HasMaxLength(100);
+
+        modelBuilder.Entity<ConsumidorFinal>()
+            .HasIndex(x => x.Nome)
+            .IsUnique();
 
         modelBuilder.HasSequence<long>("numero_venda_seq", "feak_sf");
 

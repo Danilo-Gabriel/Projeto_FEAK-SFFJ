@@ -102,6 +102,21 @@
 	font-weight: 600;
 }
 
+.required-mark,
+.field-error {
+	color: #c62828;
+}
+
+.field-error {
+	margin-top: -3px;
+	font-size: 12px;
+}
+
+.field-group input.ng-invalid.ng-touched {
+	border-color: #c62828;
+	box-shadow: 0 0 0 1px rgba(198, 40, 40, 0.12);
+}
+
 .dialog-actions {
 	display: flex;
 	justify-content: flex-end;

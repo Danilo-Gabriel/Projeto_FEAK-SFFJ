@@ -309,6 +309,91 @@
   color: #24a647;
 }
 
+.recebimento-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recebimento-resumo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.recebimento-resumo > div,
+.recebimento-total,
+.recebimento-troco {
+  padding: 14px;
+  border: 1px solid #d9e0e8;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.recebimento-resumo span,
+.recebimento-total span,
+.recebimento-troco span {
+  display: block;
+  margin-bottom: 5px;
+  color: #718193;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.recebimento-resumo strong {
+  color: #324150;
+}
+
+.recebimento-total,
+.recebimento-troco {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recebimento-total strong {
+  color: #1792e6;
+  font-size: 1.45rem;
+}
+
+.recebimento-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.recebimento-campo label {
+  color: #526273;
+  font-weight: 700;
+}
+
+.recebimento-campo input {
+  width: 100%;
+  padding: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.recebimento-troco {
+  border-color: #b9dfc1;
+  background: #eef9f0;
+}
+
+.recebimento-troco strong {
+  color: #24a647;
+  font-size: 1.35rem;
+}
+
+.recebimento-troco--pendente {
+  border-color: #f0c7c7;
+  background: #fff4f4;
+}
+
+.recebimento-troco--pendente strong {
+  color: #d15f5f;
+}
+
 @media (max-width: 1100px) {
   .pdv-shell {
     grid-template-columns: 1fr;
@@ -336,4 +421,68 @@
   .toggle-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.consumidor-selecao,
+.consumidor-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.consumidor-busca {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.consumidor-busca input {
+  width: 100%;
+}
+
+.consumidor-nome-input {
+  text-transform: uppercase;
+}
+
+.consumidor-opcao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d9e0e8;
+  border-radius: 6px;
+  background: #fff;
+  color: #324150;
+  text-align: left;
+  cursor: pointer;
+}
+
+.consumidor-opcao:hover,
+.consumidor-opcao--padrao {
+  border-color: #9cc9e4;
+  background: #eef7fc;
+}
+
+.consumidor-opcao span,
+.consumidor-opcao small {
+  display: block;
+}
+
+.consumidor-opcao small {
+  margin-top: 2px;
+  color: #718193;
+}
+
+.consumidor-vazio {
+  padding: 18px;
+  border: 1px dashed #cfd7e3;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.consumidor-vazio p {
+  margin: 0 0 12px;
+  color: #718193;
 }

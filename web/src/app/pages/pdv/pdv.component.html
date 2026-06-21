@@ -92,12 +92,14 @@
 
         <div class="metric-field">
           <label for="descontoValor">DESCONTO</label>
-          <input id="descontoValor" pInputText type="text" inputmode="decimal" formControlName="descontoValor" />
+          <input id="descontoValor" pInputText type="text" inputmode="decimal" formControlName="descontoValor"
+            (input)="sanitizarEntradaDecimal($event, 'descontoValor')" (blur)="normalizarCampoDecimal('descontoValor')" />
         </div>
 
         <div class="metric-field">
           <label for="descontoPercentual">% DESCONTO</label>
-          <input id="descontoPercentual" pInputText type="text" inputmode="decimal" formControlName="descontoPercentual" />
+          <input id="descontoPercentual" pInputText type="text" inputmode="decimal" formControlName="descontoPercentual"
+            (input)="sanitizarEntradaDecimal($event, 'descontoPercentual')" (blur)="normalizarCampoDecimal('descontoPercentual')" />
         </div>
 
         <div class="metric-field total-highlight">
@@ -172,22 +174,111 @@
 </section>
 
 <p-dialog [(visible)]="exibirModalConsumidor" [header]="'Identificar Consumidor'" [modal]="true" [style]="{width: '50vw'}" [breakpoints]="{'960px': '75vw', '640px': '90vw'}">
-  <div class="consumidor-form">
-    <div class="form-group">
-      <label for="nomeConsumidor">Nome do Consumidor</label>
-      <input 
-        id="nomeConsumidor" 
-        pInputText 
-        [(ngModel)]="consumidorEditando" 
-        placeholder="Digite o nome do consumidor" 
-        (keyup.enter)="salvarConsumidor()"
-        class="w-full"
-        autofocus />
-      <small class="info-text">Deixe em branco para usar 'CONSUMIDOR FINAL'</small>
+  <div class="consumidor-selecao">
+    <div class="form-group consumidor-busca">
+      <label for="buscaConsumidor">Buscar consumidor</label>
+      <input id="buscaConsumidor" pInputText [(ngModel)]="termoBuscaConsumidor"
+        placeholder="Digite o nome do consumidor" (keyup.enter)="selecionarOuCadastrarConsumidor()" autofocus />
     </div>
+
+    <button type="button" class="consumidor-opcao consumidor-opcao--padrao"
+      (click)="selecionarConsumidor('CONSUMIDOR FINAL')">
+      <i class="pi pi-user"></i>
+      <span>CONSUMIDOR FINAL <small>Venda não identificada</small></span>
+    </button>
+
+    <div class="consumidor-lista" *ngIf="!carregandoConsumidores">
+      <button type="button" class="consumidor-opcao" *ngFor="let consumidor of consumidoresFiltrados"
+        (click)="selecionarConsumidor(consumidor.nome)">
+        <i class="pi pi-user"></i>
+        <span>{{ consumidor.nome }}</span>
+      </button>
+
+      <div class="consumidor-vazio" *ngIf="termoBuscaConsumidor.trim() && consumidoresFiltrados.length === 0">
+        <p>Nenhum consumidor encontrado com esse nome.</p>
+        <button pButton type="button" label="Cadastrar novo consumidor" icon="pi pi-plus"
+          severity="success" (click)="abrirCadastroConsumidor()"></button>
+      </div>
+    </div>
+    <small *ngIf="carregandoConsumidores">Carregando consumidores...</small>
   </div>
   <ng-template pTemplate="footer">
-    <button pButton type="button" label="Cancelar" icon="pi pi-times" (click)="fecharModalConsumidor()" severity="secondary"></button>
-    <button pButton type="button" label="Salvar" icon="pi pi-check" (click)="salvarConsumidor()" severity="success"></button>
+    <button pButton type="button" label="Fechar" icon="pi pi-times" (click)="fecharModalConsumidor()" severity="secondary"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="exibirModalCadastroConsumidor" header="Cadastrar consumidor" [modal]="true"
+  [closable]="!salvandoConsumidor" [style]="{width: '420px'}" [breakpoints]="{'640px': '90vw'}">
+  <div class="form-group consumidor-busca">
+    <label for="novoConsumidorNome">Nome do consumidor</label>
+    <input id="novoConsumidorNome" pInputText [(ngModel)]="novoConsumidorNome" maxlength="100"
+      placeholder="Digite o nome" class="consumidor-nome-input" (keyup.enter)="cadastrarConsumidor()" autofocus />
+    <small>O consumidor ficará disponível nas próximas vendas.</small>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" icon="pi pi-times" severity="secondary"
+      [disabled]="salvandoConsumidor" (click)="fecharCadastroConsumidor()"></button>
+    <button pButton type="button" label="Cadastrar" icon="pi pi-check" severity="success"
+      [loading]="salvandoConsumidor" (click)="cadastrarConsumidor()"></button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="exibirModalRecebimento"
+  header="Receber venda"
+  [modal]="true"
+  [closable]="!salvandoVenda"
+  [closeOnEscape]="!salvandoVenda"
+  [style]="{width: '440px'}"
+  [breakpoints]="{'640px': '92vw'}"
+  (onHide)="valorRecebido = ''">
+  <div class="recebimento-modal">
+    <div class="recebimento-resumo">
+      <div>
+        <span>Forma de recebimento</span>
+        <strong><i class="pi pi-money-bill"></i> Dinheiro</strong>
+      </div>
+      <div>
+        <span>Quantidade de produtos</span>
+        <strong>{{ quantidadeTotal }}</strong>
+      </div>
+    </div>
+
+    <div class="recebimento-total">
+      <span>Total da venda</span>
+      <strong>{{ totalVenda | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+    </div>
+
+    <div class="form-group recebimento-campo">
+      <label for="valorRecebido">Valor recebido</label>
+      <input
+        id="valorRecebido"
+        pInputText
+        type="text"
+        inputmode="decimal"
+        [(ngModel)]="valorRecebido"
+        (focus)="preencherValorRecebido($event)"
+        (click)="preencherValorRecebido($event)"
+        (input)="sanitizarValorRecebido($event)"
+        (blur)="normalizarValorRecebido()"
+        (keyup.enter)="pagamentoSuficiente && confirmarRecebimento()"
+        placeholder="R$ 0,00"
+        autocomplete="off"
+        autofocus />
+    </div>
+
+    <div class="recebimento-troco" [class.recebimento-troco--pendente]="valorRecebido && !pagamentoSuficiente">
+      <span>{{ pagamentoSuficiente ? 'Troco' : 'Valor restante' }}</span>
+      <strong>
+        {{ (pagamentoSuficiente ? troco : valorRestante) | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+      </strong>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Voltar" icon="pi pi-times" severity="secondary"
+      [disabled]="salvandoVenda" (click)="fecharModalRecebimento()"></button>
+    <button pButton type="button" label="Finalizar venda" icon="pi pi-check" severity="success"
+      [loading]="salvandoVenda" [disabled]="!pagamentoSuficiente" (click)="confirmarRecebimento()"></button>
   </ng-template>
 </p-dialog>

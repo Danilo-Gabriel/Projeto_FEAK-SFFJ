@@ -32,6 +32,11 @@ public class ProdutosController : ControllerBase
     [HttpPut]
     public async Task<ActionResult<ServiceResponse<ProdutoDTO>>> AtualizarProduto([FromBody] ProdutoDTO request)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         return Ok(await _produtoDomainService.AtualizarProduto(request));
     }
 

@@ -23,7 +23,9 @@ public class ProdutoDomainService : BaseDomainService<Produto>, IProdutoDomainSe
 
         try
         {
-            var codigoBarras = dados.CodigoBarras.Trim();
+            var codigoBarras = string.IsNullOrWhiteSpace(dados.CodigoBarras)
+                ? $"PDV-{Guid.NewGuid():N}"[..14]
+                : dados.CodigoBarras.Trim();
             var descricao = dados.Descricao.Trim();
             var existente = await _produtoRepository.GetByDescricaoAsync(descricao);
             if (existente != null && existente.DhExclusao == null)
@@ -50,7 +52,7 @@ public class ProdutoDomainService : BaseDomainService<Produto>, IProdutoDomainSe
         catch (Exception ex)
         {
             serviceResponse.Success = false;
-            serviceResponse.Mensagem = $"Erro ao cadastrar produto: {ex.Message}";
+            serviceResponse.Mensagem = $"Erro ao cadastrar produto: {ObterMensagemErro(ex)}";
         }
 
         return serviceResponse;
@@ -70,7 +72,9 @@ public class ProdutoDomainService : BaseDomainService<Produto>, IProdutoDomainSe
                 return serviceResponse;
             }
 
-            var codigoBarras = dados.CodigoBarras.Trim();
+            var codigoBarras = string.IsNullOrWhiteSpace(dados.CodigoBarras)
+                ? produto.CodigoBarras
+                : dados.CodigoBarras.Trim();
             var descricao = dados.Descricao.Trim();
             var duplicado = await _produtoRepository.GetByDescricaoAsync(descricao);
             if (duplicado != null && duplicado.Id != dados.Id && duplicado.DhExclusao == null)
@@ -101,10 +105,16 @@ public class ProdutoDomainService : BaseDomainService<Produto>, IProdutoDomainSe
         catch (Exception ex)
         {
             serviceResponse.Success = false;
-            serviceResponse.Mensagem = $"Erro ao atualizar produto: {ex.Message}";
+            serviceResponse.Mensagem = $"Erro ao atualizar produto: {ObterMensagemErro(ex)}";
         }
 
         return serviceResponse;
+    }
+
+    private static string ObterMensagemErro(Exception exception)
+    {
+        var mensagemInterna = exception.GetBaseException().Message;
+        return string.IsNullOrWhiteSpace(mensagemInterna) ? exception.Message : mensagemInterna;
     }
 
     public async Task<ServiceResponse<ProdutoDTO>> ObterProdutoPorCodigoBarras(string codigoBarras)

@@ -14,6 +14,7 @@ export class RelatorioComponent implements OnInit {
   public carregando: boolean = false;
   public cancelandoVendaId: string | null = null;
   public exportandoExcel: boolean = false;
+  public vendasFiltradas: VendaDTO[] | null = null;
 
   constructor(
     private pdvService: PdvService,
@@ -54,20 +55,30 @@ export class RelatorioComponent implements OnInit {
       .join(' | ');
   }
 
+  atualizarResumoFiltrado(evento: { filteredValue?: unknown }): void {
+    this.vendasFiltradas = Array.isArray(evento.filteredValue)
+      ? evento.filteredValue as VendaDTO[]
+      : this.vendas;
+  }
+
+  private get vendasDoResumo(): VendaDTO[] {
+    return this.vendasFiltradas ?? this.vendas;
+  }
+
   get totalVendido(): number {
-    return this.vendas
+    return this.vendasDoResumo
       .filter((venda) => !venda.cancelada)
       .reduce((acumulador, venda) => acumulador + Number(venda.total ?? 0), 0);
   }
 
   get totalItensVendidos(): number {
-    return this.vendas
+    return this.vendasDoResumo
       .filter((venda) => !venda.cancelada)
       .reduce((acumulador, venda) => acumulador + this.obterQuantidadeItens(venda), 0);
   }
 
   get totalVendasFechadas(): number {
-    return this.vendas.filter((venda) => !venda.cancelada).length;
+    return this.vendasDoResumo.filter((venda) => !venda.cancelada).length;
   }
 
   gerarRecibo(venda: VendaDTO): void {
@@ -87,7 +98,7 @@ export class RelatorioComponent implements OnInit {
               <tr>
                 <td>1x</td>
                 <td>[ ] ${item.descricaoProduto}</td>
-                <td>${this.formatarMoeda(item.precoUnitario)}</td>
+                <!--<td>${this.formatarMoeda(item.precoUnitario)}</td>-->
                 <td>${this.formatarMoeda(item.precoUnitario)}</td>
               </tr>
             `);
@@ -119,8 +130,8 @@ export class RelatorioComponent implements OnInit {
   html,
   body{
     font-family: monospace;
-    font-size:10px;
-    line-height:1.1;
+    font-size:13px;
+    line-height:1.25;
     color:#000;
   }
 
@@ -134,12 +145,12 @@ export class RelatorioComponent implements OnInit {
   }
 
   .topo h1{
-    font-size:13px;
+    font-size:18px;
     margin:0;
   }
 
   .topo p{
-    font-size:10px;
+    font-size:13px;
     margin:1px 0 0;
   }
 
@@ -150,12 +161,16 @@ export class RelatorioComponent implements OnInit {
   .linha{
     display:flex;
     justify-content:space-between;
-    gap:4px;
+    align-items:flex-start;
+    gap:8px;
     margin:1px 0;
   }
 
   .linha strong{
-    font-size:10px;
+    font-size:13px;
+    max-width:65%;
+    text-align:right;
+    overflow-wrap:break-word;
   }
 
   .separador{
@@ -166,26 +181,31 @@ export class RelatorioComponent implements OnInit {
   table{
     width:100%;
     border-collapse:collapse;
-    table-layout:fixed;
-    font-size:10px;
+    table-layout:auto;
+    font-size:13px;
   }
 
   th{
     text-align:left;
     border-bottom:1px dashed #000;
     padding-bottom:2px;
-    font-size:10px;
+    font-size:13px;
   }
 
   td{
     padding:1px 0;
     vertical-align:top;
-    word-break:break-word;
+    word-break:normal;
+  }
+
+  .itens tr{
+    break-inside:avoid;
+    page-break-inside:avoid;
   }
 
   .itens td{
     padding:3px 0;
-    font-size:11px;
+    font-size:14px;
     line-height:1.35;
   }
 
@@ -195,24 +215,30 @@ export class RelatorioComponent implements OnInit {
 
   .itens th:nth-child(1),
   .itens td:nth-child(1){
-    width:10%;
+    width:1%;
+    white-space:nowrap;
   }
 
   .itens th:nth-child(2),
   .itens td:nth-child(2){
-    width:52%;
+    width:auto;
+    padding-right:5px;
+    white-space:normal;
+    overflow-wrap:anywhere;
   }
 
   .itens th:nth-child(3),
   .itens td:nth-child(3){
-    width:18%;
+    width:1%;
     text-align:right;
+    white-space:nowrap;
   }
 
   .itens th:nth-child(4),
   .itens td:nth-child(4){
-    width:20%;
+    width:1%;
     text-align:right;
+    white-space:nowrap;
   }
 
   .totais{
@@ -220,14 +246,14 @@ export class RelatorioComponent implements OnInit {
   }
 
   .total-geral{
-    font-size:12px;
+    font-size:16px;
     font-weight:bold;
   }
 
   .rodape{
     text-align:center;
     margin-top:5px;
-    font-size:10px;
+    font-size:13px;
   }
 
   .print-action{
@@ -236,13 +262,24 @@ export class RelatorioComponent implements OnInit {
 
   @media print{
 
-    html,
+    .itens thead{
+      display:table-header-group;
+    }
+
+    html{
+      width:80mm;
+      margin:0;
+      padding:0;
+    }
+
     body{
-      width:72mm;
+      width:80mm;
+      margin:0;
+      padding:1.5mm;
     }
 
     @page{
-      size:80mm auto;
+      size:auto;
       margin:0;
     }
 
@@ -264,12 +301,12 @@ export class RelatorioComponent implements OnInit {
         </div>
 
         <div class="bloco">
-          <table>
+          <table class="itens">
             <thead>
               <tr>
                 <th style="width:10%">Qtd</th>
                 <th style="width:40%">Produto</th>
-                <th>Unit.</th>
+                <!--<th>Unit.</th>-->
                 <th>Total</th>
               </tr>
             </thead>
@@ -338,11 +375,13 @@ export class RelatorioComponent implements OnInit {
     this.pdvService.listarVendas().subscribe({
       next: (vendas) => {
         this.vendas = vendas;
+        this.vendasFiltradas = null;
         this.carregando = false;
       },
       error: () => {
         this.carregando = false;
         this.vendas = [];
+        this.vendasFiltradas = null;
         this.messageService.showError('Não foi possível carregar o relatório de vendas.');
       }
     });
@@ -361,6 +400,10 @@ export class RelatorioComponent implements OnInit {
         }
 
         this.vendas = this.vendas.map((item) => item.id === response.dados!.id ? response.dados! : item);
+        if (this.vendasFiltradas) {
+          this.vendasFiltradas = this.vendasFiltradas.map((item) =>
+            item.id === response.dados!.id ? response.dados! : item);
+        }
         this.messageService.showSuccess(`Venda ${response.dados.numeroVenda} cancelada com sucesso.`);
       },
       error: () => {

@@ -77,37 +77,54 @@
 </section>
 
 <p-dialog [header]="labelModel" [modal]="true" [closable]="true" [(visible)]="visivel" [style]="{ width: '32rem' }">
-    <form [formGroup]="formProduto" class="produto-form">
+    <form [formGroup]="formProduto" class="produto-form" (ngSubmit)="onSubmit()" novalidate>
         <div class="field-group">
             <label for="codigoBarras">Código barras</label>
-            <input id="codigoBarras" pInputText formControlName="codigoBarras" autocomplete="off" />
+            <input id="codigoBarras" pInputText formControlName="codigoBarras" autocomplete="off"
+                placeholder="Opcional — será gerado automaticamente" />
         </div>
 
         <div class="field-group">
-            <label for="descricao">Descrição</label>
-            <input id="descricao" pInputText formControlName="descricao" autocomplete="off" />
+            <label for="descricao">Descrição <span class="required-mark">*</span></label>
+            <input id="descricao" pInputText formControlName="descricao" autocomplete="off"
+                [class.ng-invalid]="campoInvalido('descricao')" />
+            <small class="field-error" *ngIf="campoInvalido('descricao')">
+                {{ mensagemCampo('descricao', 'Descrição') }}
+            </small>
         </div>
 
         <div class="field-grid">
             <div class="field-group">
-                <label for="precoCusto">Preço custo</label>
-                <input id="precoCusto" pInputText type="number" min="0" step="0.01" formControlName="precoCusto" />
+                <label for="precoCusto">Preço custo <span class="required-mark">*</span></label>
+                <input id="precoCusto" pInputText type="number" min="0" step="0.01" formControlName="precoCusto"
+                    [class.ng-invalid]="campoInvalido('precoCusto')" />
+                <small class="field-error" *ngIf="campoInvalido('precoCusto')">
+                    {{ mensagemCampo('precoCusto', 'Preço de custo') }}
+                </small>
             </div>
 
             <div class="field-group">
-                <label for="precoVenda">Preço venda</label>
-                <input id="precoVenda" pInputText type="number" min="0" step="0.01" formControlName="precoVenda" />
+                <label for="precoVenda">Preço venda <span class="required-mark">*</span></label>
+                <input id="precoVenda" pInputText type="number" min="0" step="0.01" formControlName="precoVenda"
+                    [class.ng-invalid]="campoInvalido('precoVenda')" />
+                <small class="field-error" *ngIf="campoInvalido('precoVenda')">
+                    {{ mensagemCampo('precoVenda', 'Preço de venda') }}
+                </small>
             </div>
         </div>
 
         <div class="field-group">
-            <label for="estoqueAtual">Estoque atual</label>
-            <input id="estoqueAtual" pInputText type="number" min="0" step="1" formControlName="estoqueAtual" />
+            <label for="estoqueAtual">Estoque atual <span class="required-mark">*</span></label>
+            <input id="estoqueAtual" pInputText type="number" min="0" step="1" formControlName="estoqueAtual"
+                [class.ng-invalid]="campoInvalido('estoqueAtual')" />
+            <small class="field-error" *ngIf="campoInvalido('estoqueAtual')">
+                {{ mensagemCampo('estoqueAtual', 'Estoque atual') }}
+            </small>
         </div>
 
         <div class="dialog-actions">
-            <p-button label="Cancelar" severity="secondary" [outlined]="true" (onClick)="fechar()" />
-            <p-button label="Salvar" severity="success" (onClick)="onSubmit()" />
+            <p-button type="button" label="Cancelar" severity="secondary" [outlined]="true" (onClick)="fechar()" />
+            <p-button type="submit" label="Salvar" severity="success" />
         </div>
     </form>
 </p-dialog>

@@ -5,10 +5,10 @@ namespace DomainService.DTOs.Request;
 
 public class ProdutoRequest
 {
-    [Required(ErrorMessage = "Campo obrigatório")]
     public string CodigoBarras { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Campo obrigatório")]
+    [RegularExpression(@".*\S.*", ErrorMessage = "Descrição obrigatória")]
     public string Descricao { get; set; } = string.Empty;
 
     [Range(0, double.MaxValue, ErrorMessage = "Preço de custo inválido")]

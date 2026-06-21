@@ -6,6 +6,7 @@ import { VendaDTO } from '../../../models/dto/venda-dto';
 import { RegistrarVendaRequest } from '../../../models/request/registrar-venda-request';
 import { ServiceResponse } from '../../../models/response/service-response';
 import { HttpServiceService } from '../../../shared/services/http-service.service';
+import { ConsumidorFinalDTO } from '../../../models/dto/consumidor-final-dto';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +22,16 @@ export class PdvService {
 
   registrarVenda(payload: RegistrarVendaRequest): Observable<ServiceResponse<VendaDTO>> {
     return this.httpService.post<ServiceResponse<VendaDTO>>('Vendas', payload);
+  }
+
+  listarConsumidores(): Observable<ConsumidorFinalDTO[]> {
+    return this.httpService.get<ConsumidorFinalDTO[]>('ConsumidoresFinais').pipe(
+      map((response) => response?.dados ?? [])
+    );
+  }
+
+  cadastrarConsumidor(nome: string): Observable<ServiceResponse<ConsumidorFinalDTO>> {
+    return this.httpService.post<ServiceResponse<ConsumidorFinalDTO>>('ConsumidoresFinais', { nome });
   }
 
   listarVendas(): Observable<VendaDTO[]> {

@@ -96,8 +96,11 @@ public class VendaDomainService : BaseDomainService<Venda>, IVendaDomainService
                 }
 
                 var subtotalItem = itemRequest.PrecoUnitario * itemRequest.Quantidade;
-                var descontoPercentualValor = subtotalItem * (itemRequest.DescontoPercentual / 100);
-                var descontoItem = itemRequest.DescontoValor + descontoPercentualValor;
+                // As duas propriedades representam o mesmo desconto. O valor em reais é canônico;
+                // o percentual só é usado quando esse valor não foi informado.
+                var descontoItem = itemRequest.DescontoValor > 0
+                    ? itemRequest.DescontoValor
+                    : subtotalItem * (itemRequest.DescontoPercentual / 100);
                 var totalItem = subtotalItem - descontoItem;
 
                 if (totalItem < 0)

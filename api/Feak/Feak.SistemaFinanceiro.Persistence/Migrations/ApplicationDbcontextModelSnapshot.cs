@@ -24,6 +24,35 @@ namespace Feak.SistemaFinanceiro.Persistencia.Migrations
 
             modelBuilder.HasSequence("numero_venda_seq", "feak_sf");
 
+            modelBuilder.Entity("DomainService.Entities.ConsumidorFinal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("DhExclusao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dh_exclusao");
+
+                    b.Property<DateTime>("DhInclusao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dh_inclusao");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("nome");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.ToTable("consumidores_finais", (string)null);
+                });
+
             modelBuilder.Entity("DomainService.Entities.Produto", b =>
                 {
                     b.Property<Guid>("Id")

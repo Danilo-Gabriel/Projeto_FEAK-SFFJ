@@ -75,12 +75,14 @@ public static class Configuration
         services.AddTransient<IUsuarioDomainService, UsuarioDomainService>();
         services.AddTransient<IProdutoDomainService, ProdutoDomainService>();
         services.AddTransient<IVendaDomainService, VendaDomainService>();
+        services.AddTransient<IConsumidorFinalDomainService, ConsumidorFinalDomainService>();
         
         // Repository
         services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
         services.AddTransient<IUsuarioRepository, UsuarioRepository>();
         services.AddTransient<IProdutoRepository, ProdutoRepository>();
         services.AddTransient<IVendaRepository, VendaRepository>();
+        services.AddTransient<IConsumidorFinalRepository, ConsumidorFinalRepository>();
     }
     
     

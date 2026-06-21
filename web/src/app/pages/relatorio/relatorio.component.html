@@ -43,6 +43,7 @@
       [rows]="10"
       [showCurrentPageReport]="true"
       [currentPageReportTemplate]="'Exibindo {first} a {last} de {totalRecords} registros'"
+      (onFilter)="atualizarResumoFiltrado($event)"
       [paginator]="true">
       <ng-template pTemplate="caption">
         <div class="table-caption">

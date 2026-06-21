@@ -42,8 +42,8 @@ export class ProdutoComponent implements OnInit {
   formulario(): void {
     this.formProduto = this.formBuilder.group({
       id: [''],
-      codigoBarras: ['', Validators.required],
-      descricao: ['', Validators.required],
+      codigoBarras: [''],
+      descricao: ['', [Validators.required, Validators.pattern(/\S/)]],
       precoCusto: [0, [Validators.required, Validators.min(0)]],
       precoVenda: [0, [Validators.required, Validators.min(0)]],
       estoqueAtual: [0, [Validators.required, Validators.min(0)]]
@@ -51,15 +51,37 @@ export class ProdutoComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.formProduto.valid) {
-      const id = this.formProduto.get('id')?.value as string;
-      if (!id) {
-        this.criarProduto(this.formProduto.value as ProdutoRequest);
-      }
-      else {
-        this.atualizarProduto(this.formProduto.value as ProdutoDTO);
-      }
+    if (this.formProduto.invalid) {
+      this.formProduto.markAllAsTouched();
+      this.appMessageService.showWarn('Preencha corretamente os campos obrigatórios.');
+      return;
     }
+
+    const id = this.formProduto.get('id')?.value as string;
+    if (!id) {
+      this.criarProduto(this.formProduto.value as ProdutoRequest);
+    }
+    else {
+      this.atualizarProduto(this.formProduto.value as ProdutoDTO);
+    }
+  }
+
+  campoInvalido(nomeCampo: string): boolean {
+    const campo = this.formProduto.get(nomeCampo);
+    return !!campo && campo.invalid && campo.touched;
+  }
+
+  mensagemCampo(nomeCampo: string, rotulo: string): string {
+    const campo = this.formProduto.get(nomeCampo);
+    if (campo?.hasError('required') || campo?.hasError('pattern')) {
+      return `${rotulo} é obrigatório.`;
+    }
+
+    if (campo?.hasError('min')) {
+      return `${rotulo} não pode ser negativo.`;
+    }
+
+    return `Verifique o campo ${rotulo.toLowerCase()}.`;
   }
 
   acaoProduto(produto?: ProdutoDTO): void {

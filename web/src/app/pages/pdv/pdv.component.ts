@@ -7,6 +7,7 @@ import { RegistrarVendaRequest } from '../../models/request/registrar-venda-requ
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { AppMessageService } from '../../shared/services/app-message.service';
 import { PdvService } from './services/pdv.service';
+import { ConsumidorFinalDTO } from '../../models/dto/consumidor-final-dto';
 
 @Component({
   selector: 'app-pdv',
@@ -21,7 +22,14 @@ export class PdvComponent implements OnInit {
   public salvandoVenda: boolean = false;
   public itemEmEdicaoId: string | null = null;
   public exibirModalConsumidor: boolean = false;
-  public consumidorEditando: string = '';
+  public exibirModalCadastroConsumidor: boolean = false;
+  public exibirModalRecebimento: boolean = false;
+  public termoBuscaConsumidor: string = '';
+  public novoConsumidorNome: string = '';
+  public consumidores: ConsumidorFinalDTO[] = [];
+  public carregandoConsumidores: boolean = false;
+  public salvandoConsumidor: boolean = false;
+  public valorRecebido: string = '';
   private origemDesconto: 'valor' | 'percentual' = 'valor';
   private readonly authSessionService = inject(AuthSessionService);
 
@@ -58,6 +66,18 @@ export class PdvComponent implements OnInit {
 
   get totalVenda(): number {
     return this.subtotal + this.acrescimo;
+  }
+
+  get troco(): number {
+    return Math.max(this.converterNumero(this.valorRecebido) - this.totalVenda, 0);
+  }
+
+  get valorRestante(): number {
+    return Math.max(this.totalVenda - this.converterNumero(this.valorRecebido), 0);
+  }
+
+  get pagamentoSuficiente(): boolean {
+    return this.converterNumero(this.valorRecebido) >= this.totalVenda;
   }
 
   get totalItemDigitado(): number {
@@ -341,6 +361,35 @@ export class PdvComponent implements OnInit {
       return;
     }
 
+    this.valorRecebido = '';
+    this.exibirModalRecebimento = true;
+  }
+
+  get consumidoresFiltrados(): ConsumidorFinalDTO[] {
+    const termo = this.normalizarTexto(this.termoBuscaConsumidor);
+    if (!termo) {
+      return this.consumidores;
+    }
+
+    return this.consumidores.filter((consumidor) =>
+      this.normalizarTexto(consumidor.nome).includes(termo));
+  }
+
+  fecharModalRecebimento(): void {
+    if (this.salvandoVenda) {
+      return;
+    }
+
+    this.exibirModalRecebimento = false;
+    this.valorRecebido = '';
+  }
+
+  confirmarRecebimento(): void {
+    if (!this.pagamentoSuficiente) {
+      this.messageService.showWarn('O valor recebido deve ser igual ou maior que o total da venda.');
+      return;
+    }
+
     const operador = this.authSessionService.obterOperador();
     if (!operador) {
       this.messageService.showWarn('Não foi possível identificar o operador logado. Faça login novamente.');
@@ -375,6 +424,8 @@ export class PdvComponent implements OnInit {
         this.imprimirReciboVenda(response.dados);
         this.messageService.showSuccess(`Venda ${response.dados.numeroVenda} registrada com sucesso.`);
         this.itensVenda = [];
+        this.exibirModalRecebimento = false;
+        this.valorRecebido = '';
         this.cancelarDigitacao();
         this.carregarProdutos();
       },
@@ -383,6 +434,34 @@ export class PdvComponent implements OnInit {
         this.messageService.showError('Erro ao registrar venda.');
       }
     });
+  }
+
+  sanitizarValorRecebido(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let valor = input.value.replace(/[^\d,.]/g, '');
+    const ultimoSeparador = Math.max(valor.lastIndexOf(','), valor.lastIndexOf('.'));
+
+    valor = valor.split('').filter((caractere, indice) =>
+      (caractere !== ',' && caractere !== '.') || indice === ultimoSeparador).join('');
+
+    input.value = valor;
+    this.valorRecebido = valor;
+  }
+
+  normalizarValorRecebido(): void {
+    this.valorRecebido = this.converterNumero(this.valorRecebido).toFixed(2).replace('.', ',');
+  }
+
+  preencherValorRecebido(event: Event): void {
+    if (this.valorRecebido.trim()) {
+      return;
+    }
+
+    const input = event.target as HTMLInputElement;
+    this.valorRecebido = this.totalVenda.toFixed(2).replace('.', ',');
+
+    // Aguarda o valor chegar ao campo para deixá-lo pronto para substituição.
+    setTimeout(() => input.select());
   }
 
   cancelarDigitacao(limparBusca: boolean = true): void {
@@ -414,7 +493,7 @@ export class PdvComponent implements OnInit {
       valorUnitario: [0, [Validators.required, Validators.min(0)]],
       descontoValor: [0, [Validators.min(0)]],
       descontoPercentual: [0, [Validators.min(0)]],
-      inclusaoAutomatica: [true],
+      inclusaoAutomatica: [false],
       exclusaoAutomatica: [false],
       buscaReferencia: [false]
     });
@@ -508,7 +587,6 @@ export class PdvComponent implements OnInit {
       : 0;
 
     this.pdvForm.patchValue({
-      descontoPercentual: subtotal > 0 ? Number(((descontoValor / subtotal) * 100).toFixed(2)) : 0,
       descontoValor
     }, { emitEvent: false });
   }
@@ -519,9 +597,30 @@ export class PdvComponent implements OnInit {
     const descontoPercentual = subtotal > 0 ? Number(((descontoValor / subtotal) * 100).toFixed(2)) : 0;
 
     this.pdvForm.patchValue({
-      descontoValor,
       descontoPercentual
     }, { emitEvent: false });
+  }
+
+  sanitizarEntradaDecimal(event: Event, campo: 'descontoValor' | 'descontoPercentual'): void {
+    const input = event.target as HTMLInputElement;
+    let valor = input.value.replace(/[^\d,.]/g, '');
+    const separadores = [...valor].filter((caractere) => caractere === ',' || caractere === '.');
+
+    if (separadores.length > 1) {
+      const ultimoSeparador = Math.max(valor.lastIndexOf(','), valor.lastIndexOf('.'));
+      valor = valor.split('').filter((caractere, indice) =>
+        (caractere !== ',' && caractere !== '.') || indice === ultimoSeparador).join('');
+    }
+
+    if (input.value !== valor) {
+      input.value = valor;
+      this.pdvForm.get(campo)?.setValue(valor);
+    }
+  }
+
+  normalizarCampoDecimal(campo: 'descontoValor' | 'descontoPercentual'): void {
+    const controle = this.pdvForm.get(campo);
+    controle?.setValue(Number(this.converterNumero(controle.value).toFixed(2)));
   }
 
   private normalizarDesconto(descontoInformado: number, subtotal: number): number {
@@ -570,22 +669,99 @@ export class PdvComponent implements OnInit {
   }
 
   abrirModalConsumidor(): void {
-    this.consumidorEditando = this.pdvForm.get('consumidor')?.value || '';
+    this.termoBuscaConsumidor = '';
     this.exibirModalConsumidor = true;
+    this.carregarConsumidores();
   }
 
   fecharModalConsumidor(): void {
     this.exibirModalConsumidor = false;
-    this.consumidorEditando = '';
+    this.termoBuscaConsumidor = '';
   }
 
-  salvarConsumidor(): void {
-    const nomeConsumidor = this.consumidorEditando?.trim() || 'CONSUMIDOR FINAL';
+  selecionarConsumidor(nomeConsumidor: string): void {
     this.pdvForm.patchValue({
       consumidor: nomeConsumidor
     }, { emitEvent: false });
-    this.messageService.showSuccess(`Consumidor alterado para: ${nomeConsumidor}`);
     this.fecharModalConsumidor();
+  }
+
+  selecionarOuCadastrarConsumidor(): void {
+    const nome = this.termoBuscaConsumidor.trim();
+    const consumidorExato = this.consumidores.find((item) =>
+      this.normalizarTexto(item.nome) === this.normalizarTexto(nome));
+
+    if (consumidorExato) {
+      this.selecionarConsumidor(consumidorExato.nome);
+      return;
+    }
+
+    if (nome && this.consumidoresFiltrados.length === 0) {
+      this.abrirCadastroConsumidor();
+    }
+  }
+
+  abrirCadastroConsumidor(): void {
+    this.novoConsumidorNome = this.termoBuscaConsumidor.trim();
+    this.exibirModalConsumidor = false;
+    this.exibirModalCadastroConsumidor = true;
+  }
+
+  fecharCadastroConsumidor(): void {
+    if (this.salvandoConsumidor) {
+      return;
+    }
+
+    this.exibirModalCadastroConsumidor = false;
+    this.novoConsumidorNome = '';
+  }
+
+  cadastrarConsumidor(): void {
+    const nome = this.novoConsumidorNome.trim().replace(/\s+/g, ' ').toLocaleUpperCase('pt-BR');
+    if (nome.length < 2 || nome.length > 100) {
+      this.messageService.showWarn('Informe um nome entre 2 e 100 caracteres.');
+      return;
+    }
+
+    this.salvandoConsumidor = true;
+    this.pdvService.cadastrarConsumidor(nome).subscribe({
+      next: (response) => {
+        this.salvandoConsumidor = false;
+        if (!response.success || !response.dados) {
+          this.messageService.showError(response.mensagem || 'Não foi possível cadastrar o consumidor.');
+          return;
+        }
+
+        this.consumidores = [...this.consumidores, response.dados]
+          .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+        this.exibirModalCadastroConsumidor = false;
+        this.novoConsumidorNome = '';
+        this.selecionarConsumidor(response.dados.nome);
+        this.messageService.showSuccess('Consumidor cadastrado e selecionado.');
+      },
+      error: () => {
+        this.salvandoConsumidor = false;
+        this.messageService.showError('Erro ao cadastrar consumidor.');
+      }
+    });
+  }
+
+  private carregarConsumidores(): void {
+    this.carregandoConsumidores = true;
+    this.pdvService.listarConsumidores().subscribe({
+      next: (consumidores) => {
+        this.consumidores = consumidores;
+        this.carregandoConsumidores = false;
+      },
+      error: () => {
+        this.carregandoConsumidores = false;
+        this.messageService.showError('Não foi possível carregar os consumidores.');
+      }
+    });
+  }
+
+  private normalizarTexto(valor: string): string {
+    return valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('pt-BR').trim();
   }
 
   private imprimirReciboVenda(venda: VendaDTO): void {
@@ -604,7 +780,7 @@ export class PdvComponent implements OnInit {
               <tr>
                 <td>1x</td>
                 <td>[ ] ${item.descricaoProduto}</td>
-                <td>${this.formatarMoedaRecibo(item.precoUnitario)}</td>
+                <!--<td>${this.formatarMoedaRecibo(item.precoUnitario)}</td>-->
                 <td>${this.formatarMoedaRecibo(item.precoUnitario)}</td>
               </tr>
             `);
@@ -636,8 +812,8 @@ export class PdvComponent implements OnInit {
   body{
     width:72mm;
     font-family: monospace;
-    font-size:10px;
-    line-height:1.1;
+    font-size:13px;
+    line-height:1.25;
     color:#000;
   }
 
@@ -651,12 +827,12 @@ export class PdvComponent implements OnInit {
   }
 
   .topo h1{
-    font-size:13px;
+    font-size:18px;
     margin:0;
   }
 
   .topo p{
-    font-size:10px;
+    font-size:13px;
     margin:1px 0 0;
   }
 
@@ -667,37 +843,46 @@ export class PdvComponent implements OnInit {
   .linha{
     display:flex;
     justify-content:space-between;
-    gap:4px;
+    align-items:flex-start;
+    gap:8px;
     margin:1px 0;
   }
 
   .linha strong{
-    font-size:10px;
+    font-size:13px;
+    max-width:65%;
+    text-align:right;
+    overflow-wrap:break-word;
   }
 
   table{
     width:100%;
     border-collapse:collapse;
-    table-layout:fixed;
-    font-size:10px;
+    table-layout:auto;
+    font-size:13px;
   }
 
   th{
     text-align:left;
     border-bottom:1px dashed #000;
     padding-bottom:2px;
-    font-size:10px;
+    font-size:13px;
   }
 
   td{
     padding:1px 0;
     vertical-align:top;
-    word-break:break-word;
+    word-break:normal;
+  }
+
+  .itens tr{
+    break-inside:avoid;
+    page-break-inside:avoid;
   }
 
   .itens td{
     padding:3px 0;
-    font-size:11px;
+    font-size:14px;
     line-height:1.35;
   }
 
@@ -707,24 +892,30 @@ export class PdvComponent implements OnInit {
 
   .itens th:nth-child(1),
   .itens td:nth-child(1){
-    width:10%;
+    width:1%;
+    white-space:nowrap;
   }
 
   .itens th:nth-child(2),
   .itens td:nth-child(2){
-    width:52%;
+    width:auto;
+    padding-right:5px;
+    white-space:normal;
+    overflow-wrap:anywhere;
   }
 
   .itens th:nth-child(3),
   .itens td:nth-child(3){
-    width:18%;
+    width:1%;
     text-align:right;
+    white-space:nowrap;
   }
 
   .itens th:nth-child(4),
   .itens td:nth-child(4){
-    width:20%;
+    width:1%;
     text-align:right;
+    white-space:nowrap;
   }
 
   .totais{
@@ -733,13 +924,24 @@ export class PdvComponent implements OnInit {
 
   @media print{
 
-    html,
+    .itens thead{
+      display:table-header-group;
+    }
+
+    html{
+      width:80mm;
+      margin:0;
+      padding:0;
+    }
+
     body{
-      width:72mm;
+      width:80mm;
+      margin:0;
+      padding:1.5mm;
     }
 
     @page{
-      size:80mm auto;
+      size:auto;
       margin:0;
     }
 
@@ -768,7 +970,7 @@ export class PdvComponent implements OnInit {
               <tr>
                 <th>Qtd</th>
                 <th>Produto</th>
-                <th>Unit.</th>
+                <!--<th>Unit.</th>-->
                 <th>Total</th>
               </tr>
             </thead>
